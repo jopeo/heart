@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error
 
@@ -21,7 +22,10 @@ from sklearn.metrics import mean_absolute_error
 # from imblearn.under_sampling import RandomUnderSampler
 # from imblearn.metrics import classification_report_imbalanced
 
-filename = "heart_2020_cleaned.csv"
+#  todo: visit https://www.cdc.gov/brfss/annual_data/annual_2020.html to download the data,
+#   the SAS Transport Format is used here:
+
+#filename = "heart_2020_cleaned.csv"
 full_file = "LLCP2020.XPT"
 
 
@@ -76,6 +80,7 @@ if __name__ ==  "__main__":
 	
 	train_X.shape
 	
+	# first, a decicision tree model
 	model = DecisionTreeRegressor(random_state=1)
 	model.fit(train_X, train_y)
 	
@@ -95,6 +100,12 @@ if __name__ ==  "__main__":
 	my_mae
 	best_tree_size = candidate_max_leaf_nodes[my_mae.index(min(my_mae))]
 	best_tree_size
+	
+	# now, a random forest model
+	forest_model = RandomForestRegressor(random_state=1)
+	forest_model.fit(train_X, train_y)
+	melb_preds = forest_model.predict(val_X)
+	print(mean_absolute_error(val_y, melb_preds))
 	
 	
 	
