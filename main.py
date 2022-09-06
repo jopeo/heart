@@ -18,8 +18,12 @@ from imblearn.under_sampling import RandomUnderSampler
 from imblearn.metrics import classification_report_imbalanced
 
 filename = "heart_2020_cleaned.csv"
+full_file = "LLCP2020.ASC"
 
 if __name__ ==  "__main__":
+	
+	data = pd.
+	('./' + full_file)
 	
 	data = pd.read_csv('./' + filename)
 	data.shape
