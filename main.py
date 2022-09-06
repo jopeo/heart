@@ -24,6 +24,15 @@ from sklearn.metrics import mean_absolute_error
 filename = "heart_2020_cleaned.csv"
 full_file = "LLCP2020.XPT"
 
+
+def get_mae(max_leaf_nodes, train_X, val_X, train_y, val_y):
+    model = DecisionTreeRegressor(max_leaf_nodes=max_leaf_nodes, random_state=0)
+    model.fit(train_X, train_y)
+    preds_val = model.predict(val_X)
+    mae = mean_absolute_error(val_y, preds_val)
+    return mae
+
+
 if __name__ ==  "__main__":
 	# data = pd.read_csv('./' + filename)
 	
@@ -33,39 +42,62 @@ if __name__ ==  "__main__":
 	data.head()
 	data.columns
 	
-	small = data.sample(frac=0.01, random_state=1)
-	small.shape
-	small.describe()
-	small.head()
+	data = data.dropna(subset=["_MICHD"], axis=0)
+	data = data.dropna(axis=1)
+	data.shape
+	data.describe()
+	data.head()
+	data.columns
+
+	# small = data.sample(frac=0.01, random_state=1)
+	# small.shape
+	# small.describe()
+	# small.head()
 	
-	z = small.dropna(subset=["_MICHD"], axis=0)
-	z.shape
+	# z = small.dropna(subset=["_MICHD"], axis=0)
+	# z.shape
 	
-	keep_cols = z.dropna(axis=1)
-	keep_cols.describe
+	# keep_cols = z.dropna(axis=1)
+	# keep_cols.describe
 	
-	y = keep_cols._MICHD
+	y = data._MICHD
 	
-	bool("_MICHD" in keep_cols.columns)
-	len(keep_cols.columns)
+	bool("_MICHD" in data.columns)
+	len(data.columns)
+	y.shape
 	
-	X = keep_cols.drop("_MICHD", axis=1)
+	
+	X = data.drop("_MICHD", axis=1)
 	len(X.columns)
 	X.head()
+	X.shape
 	
 	train_X, val_X, train_y, val_y = train_test_split(X, y, random_state=1)
 	
-	small_model = DecisionTreeRegressor(random_state=1)
-	small_model.fit(train_X, train_y)
+	train_X.shape
 	
-	val_predictions = small_model.predict(val_X)
+	model = DecisionTreeRegressor(random_state=1)
+	model.fit(train_X, train_y)
+	
+	val_predictions = model.predict(val_X)
 	print(val_predictions[:5])
 	bool(1 in val_predictions)
 	val_predictions.shape
 	print(val_y.head())
-	
+
 	val_mae = mean_absolute_error(val_y, val_predictions)
-	print(val_mae)
+	val_mae
+	
+	candidate_max_leaf_nodes = [5, 25, 50, 100, 250, 500]
+	my_mae = []
+	for node in candidate_max_leaf_nodes:
+		my_mae.append(get_mae(node, train_X, val_X, train_y, val_y))
+	my_mae
+	best_tree_size = candidate_max_leaf_nodes[my_mae.index(min(my_mae))]
+	best_tree_size
+	
+	
+	
 	
 	# categoricals = data.select_dtypes(include=[np.object])
 	# categoricals.columns
