@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 
-# %windir%\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy ByPass -NoExit -Command "&
-# cd C:\Users\joepo\miniconda3\shell\condabin\
-# conda-hook.ps1
-# ; conda activate 'C:\Users\joepo\miniconda3' "
+# conda activate tf
 
 import tensorflow as tf
 import pandas as pd
