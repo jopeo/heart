@@ -16,13 +16,6 @@ from tensorflow import keras
 from keras import layers
 import matplotlib.pyplot as plt
 from keras.callbacks import EarlyStopping
-
-print(tf.config.list_physical_devices('GPU'))
-print(tf.reduce_sum(tf.random.normal([1000, 1000])))
-
-#  todo: visit https://www.cdc.gov/brfss/annual_data/annual_2020.html to download the data,
-#   the SAS Transport Format is used here:
-
 full_file = "LLCP2020.XPT"
 
 
@@ -63,13 +56,22 @@ def load_data(sas_file_name):
 	data = data[data._DRNKWK1 < 99900]    #  responded knew drinks per week (excluded refusal or don't know)
 	X = data.drop(['_MICHD', 'CVDCRHD4', 'CVDSTRK3',
 	               ], axis=1)
-	y = data._MICHD
+	y = data._MICHD - 1
+	
+	
 	train_X, val_X, train_y, val_y = train_test_split(X, y, random_state=1)
 	return data, y, X, train_X, val_X, train_y, val_y
+
+#  todo: visit https://www.cdc.gov/brfss/annual_data/annual_2020.html to download the data,
+#   the SAS Transport Format is used here:
+
+print(tf.config.list_physical_devices('GPU'))
+print(tf.reduce_sum(tf.random.normal([1000, 1000])))
 
 
 if __name__ ==  "__main__":
 	data, y, X, train_X, val_X, train_y, val_y = load_data(full_file)
+	train_y.head()
 	data.shape
 	X.shape
 	X.columns
@@ -96,22 +98,37 @@ if __name__ ==  "__main__":
 	
 	early_stopping = EarlyStopping(
 			min_delta=0.001,  # minimium amount of change to count as an improvement
-			patience=10,  # how many epochs to wait before stopping
+			patience=5,  # how many epochs to wait before stopping
 			restore_best_weights=True,
 	)
 	
 	#  'relu' activation -- 'elu', 'selu', and 'swish'
 	# layers.Dense(32, input_shape=[8]),
 	# layers.Activation('relu'),
+	
 	model = keras.Sequential([
+			layers.BatchNormalization(input_shape=input_shape),
 			# the hidden ReLU layers
-			layers.Dense(units=32, activation='relu', input_shape=input_shape),
+			layers.Dense(units=32, activation='relu'),  # , input_shape=input_shape),
+			layers.BatchNormalization(),
+			layers.Dropout(rate=0.3),  # apply 30% dropout to the next layer
 			layers.Dense(units=32, activation='relu'),
+			layers.BatchNormalization(),
+			layers.Dropout(rate=0.3),  # apply 30% dropout to the next layer
 			layers.Dense(units=32, activation='relu'),
+			layers.BatchNormalization(),
+			layers.Dropout(rate=0.3),  # apply 30% dropout to the next layer
 			# the linear output layer
-			layers.Dense(units=1),
+			# layers.Dense(units=1),
+			layers.Dense(1, activation='sigmoid')
 	])
 	
+	model.compile(
+			optimizer="adam",
+			# loss="mae",
+			loss='binary_crossentropy',
+			metrics=['binary_accuracy'],
+	)
 	# model = keras.Sequential([
 	# 		layers.Dense(16, activation='relu'),
 	# 		layers.Dense(1),
@@ -128,11 +145,7 @@ if __name__ ==  "__main__":
 	# 		layers.Dense(1),
 	# ])
 	
-	
-	model.compile(
-			optimizer="adam",
-			loss="mae",
-	)
+
 	
 	# outs = []
 	# for array in train_X, train_y, val_X, val_y:
@@ -142,7 +155,7 @@ if __name__ ==  "__main__":
 	history = model.fit(
 			train_X, train_y,
 			validation_data=(val_X, val_y),
-			batch_size=256,
+			batch_size=256*2,
 			epochs=500,
 			callbacks=[early_stopping],  # put your callbacks in a list
 			# verbose=0,  # turn off training log
@@ -154,7 +167,11 @@ if __name__ ==  "__main__":
 	# history_df['loss'].plot()
 	
 	history_df.loc[:, ['loss', 'val_loss']].plot()
-	# history_df.loc[3:, ['loss', 'val_loss']].plot()
+	# history_df.loc[5:, ['loss', 'val_loss']].plot()
+	# history_df.loc[5:, ['binary_accuracy', 'val_binary_accuracy']].plot()
+	
+	history_df.loc[:, ['loss', 'val_loss']].plot(title="Cross-entropy")
+	history_df.loc[:, ['binary_accuracy', 'val_binary_accuracy']].plot(title="Accuracy")
 	
 	plt.show()
 	
