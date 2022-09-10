@@ -16,8 +16,9 @@ from tensorflow import keras
 from keras import layers
 import matplotlib.pyplot as plt
 from keras.callbacks import EarlyStopping
+from keras.models import load_model
 full_file = "LLCP2020.XPT"
-
+model_name = "model1.h5"
 
 def load_data(sas_file_name):
 	data = pd.read_sas('./' + full_file)
@@ -56,7 +57,7 @@ def load_data(sas_file_name):
 	data = data[data._DRNKWK1 < 99900]    #  responded knew drinks per week (excluded refusal or don't know)
 	X = data.drop(['_MICHD', 'CVDCRHD4', 'CVDSTRK3',
 	               ], axis=1)
-	y = data._MICHD - 1
+	y = abs(data._MICHD - 2)
 	
 	
 	train_X, val_X, train_y, val_y = train_test_split(X, y, random_state=1)
@@ -76,6 +77,7 @@ if __name__ ==  "__main__":
 	X.shape
 	X.columns
 	train_X.shape
+	X.head()
 	
 	input_shape = [train_X.shape[1]]
 	input_shape
@@ -105,17 +107,18 @@ if __name__ ==  "__main__":
 	#  'relu' activation -- 'elu', 'selu', and 'swish'
 	# layers.Dense(32, input_shape=[8]),
 	# layers.Activation('relu'),
+	m = 2
 	
 	model = keras.Sequential([
 			layers.BatchNormalization(input_shape=input_shape),
 			# the hidden ReLU layers
-			layers.Dense(units=32, activation='relu'),  # , input_shape=input_shape),
+			layers.Dense(units=64*m, activation='relu'),  # , input_shape=input_shape),
 			layers.BatchNormalization(),
 			layers.Dropout(rate=0.3),  # apply 30% dropout to the next layer
-			layers.Dense(units=32, activation='relu'),
+			layers.Dense(units=64*m, activation='relu'),
 			layers.BatchNormalization(),
 			layers.Dropout(rate=0.3),  # apply 30% dropout to the next layer
-			layers.Dense(units=32, activation='relu'),
+			layers.Dense(units=64*m, activation='relu'),
 			layers.BatchNormalization(),
 			layers.Dropout(rate=0.3),  # apply 30% dropout to the next layer
 			# the linear output layer
@@ -153,28 +156,39 @@ if __name__ ==  "__main__":
 	# 	outs.append(array)
 	
 	history = model.fit(
-			train_X, train_y,
-			validation_data=(val_X, val_y),
-			batch_size=256*2,
-			epochs=500,
+			X, y,
+			# validation_data=(val_X, val_y),
+			batch_size=256*2*m,
+			epochs=10,
 			callbacks=[early_stopping],  # put your callbacks in a list
 			# verbose=0,  # turn off training log
 	)
 	
-	# convert the training history to a dataframe
-	history_df = pd.DataFrame(history.history)
-	# use Pandas native plot method
-	# history_df['loss'].plot()
+	model.save(model_name)
 	
-	history_df.loc[:, ['loss', 'val_loss']].plot()
-	# history_df.loc[5:, ['loss', 'val_loss']].plot()
-	# history_df.loc[5:, ['binary_accuracy', 'val_binary_accuracy']].plot()
 	
-	history_df.loc[:, ['loss', 'val_loss']].plot(title="Cross-entropy")
-	history_df.loc[:, ['binary_accuracy', 'val_binary_accuracy']].plot(title="Accuracy")
+	# # convert the training history to a dataframe
+	# history_df = pd.DataFrame(history.history)
+	# history_df.loc[:, ['loss', 'val_loss']].plot(title="Cross-entropy")
+	# history_df.loc[:, ['binary_accuracy', 'val_binary_accuracy']].plot(title="Accuracy")
+	# # use Pandas native plot method
+	# # history_df['loss'].plot()
+	#
+	# plt.show()
 	
-	plt.show()
 	
+	z = pd.DataFrame(0, index=range(2), columns=X.columns)
+	z.shape
+	z.iloc[0] = X.mean().astype(int).transpose()
+	z.iloc[1] = pd.DataFrame(0, index=range(1), columns=X.columns)
+	z = z.astype(float)
+	z.shape
+	z
+	z.columns
+	
+	# X_new = [[...], [...]]
+	y_new = model.predict(z)
+	print(y_new)
 	
 	pass
 
