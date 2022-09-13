@@ -1,5 +1,6 @@
 ---
-title: Home
+title: Heart Disease Prediction
+description: A deep neural network for predicting heart disease
 layout: template
 filename: index
 ---
