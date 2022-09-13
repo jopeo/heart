@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from keras.callbacks import EarlyStopping
 from keras.models import load_model
 full_file = "LLCP2020.XPT"
-model_name = "model1.h5"
+model_name = "model2.h5"
 
 def load_data(sas_file_name):
 	data = pd.read_sas('./' + full_file)
@@ -94,6 +94,12 @@ if __name__ ==  "__main__":
 			(StandardScaler(), features_num),
 			(OneHotEncoder(), features_cat),
 	)
+	preprocessor
+	
+	train_X = preprocessor.fit_transform(train_X)
+	val_X = preprocessor.fit_transform(val_X)
+	train_X.shape
+	val_X.shape
 	
 	early_stopping = EarlyStopping(
 			min_delta=0.001,  # minimium amount of change to count as an improvement
@@ -151,10 +157,10 @@ if __name__ ==  "__main__":
 	# 	outs.append(array)
 	
 	history = model.fit(
-			X, y,
-			# validation_data=(val_X, val_y),
+			train_X, train_y,  # X, y,
+			validation_data=(val_X, val_y),
 			batch_size=256*2*m,
-			epochs=10,
+			epochs=50,
 			callbacks=[early_stopping],  # put your callbacks in a list
 			# verbose=0,  # turn off training log
 	)
