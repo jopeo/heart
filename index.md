@@ -9,7 +9,7 @@ filename: index
 
 This website is in progress. Machine learning model coming soon!
 
-For now, please visit the GitHub repository [https://github.com/jopeo/heart](https://github.com/jopeo/heart/tree/master/source>){:target="_blank"}
+For now, please visit the GitHub repository [https://github.com/jopeo/heart](https://github.com/jopeo/heart/tree/master/source){:target="_blank"}
 for the source code.
 
 The data for training this model was taken from the CDC's 2020 Behavioral Risk Factor 
