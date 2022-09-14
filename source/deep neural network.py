@@ -24,7 +24,7 @@ print(tf.reduce_sum(tf.random.normal([1000, 1000])))
 #   the SAS Transport Format is used here:
 
 full_file = "LLCP2020.XPT"
-model_name = "model4.h5"
+model_name = "model5.h5"
 fig_name = model_name.split('.')[0] + '_plots'
 
 
@@ -195,11 +195,11 @@ if __name__ ==  "__main__":
 	X = pd.DataFrame(imp.fit_transform(X), columns=cols)
 	X
 	
-	preprocessor = make_column_transformer(
-			(StandardScaler(), features_num),
-			(OneHotEncoder(), features_cat),
-	)
-	X = pd.DataFrame(preprocessor.fit_transform(X).toarray())
+	# preprocessor = make_column_transformer(
+	# 		(StandardScaler(), features_num),
+	# 		(OneHotEncoder(), features_cat),
+	# )
+	# X = pd.DataFrame(preprocessor.fit_transform(X).toarray())
 	
 	X.isnull().values.any()
 	X.shape
@@ -257,7 +257,7 @@ if __name__ ==  "__main__":
 	)
 	
 	# convert the training history to a dataframe
-	history_df = pd.DataFrame(history.history)
+	# history_df = pd.DataFrame(history.history)
 	# history_df.loc[:, ['loss', 'val_loss']].plot(title="Cross-entropy")
 	# history_df.loc[:, ['binary_accuracy', 'val_binary_accuracy']].plot(title="Accuracy")
 	
@@ -271,111 +271,122 @@ if __name__ ==  "__main__":
 	# fig.savefig(fig_name)
 	# plt.show()
 	
-	model.save(model_name)
+	model.save('./source/' + model_name)
 	
-	# model = load_model(model_name)
-	# model
-	#
-	# z = pd.DataFrame(0, index=range(4), columns=X.columns)
-	# z.shape
-	# z.iloc[0] = X.mean().astype(int).transpose()
-	# z.iloc[1] = pd.DataFrame(0, index=range(1), columns=X.columns)
-	# z = z.astype(float)
-	# z.shape
-	# z
-	# z.columns
-	#
-	# n = 2
-	# z.iloc[n] = pd.DataFrame(0, index=range(1), columns=X.columns)
-	# z.iloc[n].SLEPTIM1 = 6  # sleep time in hours
-	# z.iloc[n]._AGE80 = 32  # age
-	# z.iloc[n]._CHLDCNT = 2  # number of children +1 (1 = no children)
-	# z.iloc[n].DROCDY3_ = 0  # drink occasions per day
-	# z.iloc[n]._DRNKWK1 = 0  # drinks per week
-	# z.iloc[n]._STATE = 6  # state https://www.cdc.gov/brfss/annual_data/2020/pdf/codebook20_llcp-v2-508.pdf
-	# z.iloc[n].SEXVAR = 1  # sex male = 1, female = 2
-	# z.iloc[n].HLTHPLN1 = 1  # health plan yes = 1, no = 2
-	# z.iloc[n].PERSDOC2 = 3  # personal doctor yes = 1, more = 2, no = 3 Do you have one person you think of as your personal doctor or health care provider? (If ´No´ ask ´Is there more than one or is there no person who you think of as your personal doctor or health care provider?´.)
-	# z.iloc[n].MEDCOST = 2  # Was there a time in the past 12 months when you needed to see a doctor but could not because of cost?
-	# z.iloc[n].EXERANY2 = 1  # During the past month, other than your regular job, did you participate in any physical activities or exercises such as running, calisthenics, golf, gardening, or walking for exercise?
-	# z.iloc[n].ASTHMA3 = 2  #  (Ever told) (you had) asthma?
-	# z.iloc[n].CHCSCNCR = 2  #  (Ever told) (you had) skin cancer?
-	# z.iloc[n].CHCOCNCR = 2  # (Ever told) (you had) any other types of cancer?
-	# z.iloc[n].QSTLANG = 1  # Language identifier 1 english 2 spanish 3 other
-	# z.iloc[n]._IMPRACE = 1  # Imputed race/ethnicity value (This value is the reported race/ethnicity or an imputed race/ethnicity, if the respondent refused to give a race/ethnicity. The value of the imputed race/ethnicity will be the most common race/ethnicity response for that region of the state)
-	# z.iloc[n]._RFHLTH = 1  #  Adults with good or better health (good or better = 1, fair or poor = 2)
-	# z.iloc[n]._PHYS14D = 2  #  3 level not good physical health status: 0 days, 1-13 days, 14-30 days (1 Zero days when physical health not good, 2 for 1-13 days when physical health not good, 3 for 14+ days when physical health not good )
-	# z.iloc[n]._MENT14D = 2  #  3 level not good mental health status: 0 days, 1-13 days, 14-30 days (1 Zero days when physical health not good, 2 for 1-13 days when physical health not good, 3 for 14+ days when physical health not good )
-	# z.iloc[n]._HCVU651 = 1  #  Respondents aged 18-64 who have any form of health care coverage
-	# z.iloc[n]._TOTINDA = 1  #  Adults who reported doing physical activity or exercise during the past 30 days other than their regular job
-	# z.iloc[n]._LTASTH1 = 1  #   Adults who have ever been told they have asthma 1 = no, 2 = yes
-	# z.iloc[n]._CASTHM1 = 1  #   Adults who have been told they currently have asthma  1 = no, 2 = yes
-	# z.iloc[n]._ASTHMS1 = 3  #   Adults who have been told they currently have asthma  3 = never, 2 = former, 1 = current
-	# z.iloc[n]._EXTETH3 = 1  #   Adults aged 18+ who have had permanent teeth extracted 1 = no, 2 = yes
-	# z.iloc[n]._DENVST3 = 2  #   Adults who have visited a dentist, dental hygenist or dental clinic within the past year 1=yes, 2=no
-	# z.iloc[n]._HISPANC = 2  #   Hispanic, Latino/a, or Spanish origin calculated variable 1=yes, 2=no
-	# z.iloc[n]._SEX = 1  #   Calculated sex variable
-	# z.iloc[n]._RFBMI5 = 1  #   Adults who have a body mass index greater than 25.00 (Overweight or Obese) 1=no, 2=yes
-	# z.iloc[n]._EDUCAG = 4  #   Level of education completed (1 Did not graduate High School, 2 Graduated High School, 3Attended College or Technical School, 4 Graduated from College or Technical School, 9 don't know
-	# z.iloc[n]._INCOMG = 5  #  Income categories (1 Less than $15,000, 2 $15,000 to less than $25,000, 3 $25,000 to less than $35,000, 4 $35,000 to less than $50,000, 5 $50,000 or more, 9 dont know
-	# z.iloc[n]._SMOKER3 = 4  # Four-level smoker status: Everyday smoker, Someday smoker, Former smoker, Non-smoker
-	# z.iloc[n]._RFSMOK3 = 1  # Adults who are current smokers 1=no, 2=yes
-	# z.iloc[n].DRNKANY5 = 2  # Adults who reported having had at least one drink of alcohol in the past 30 days. 1=yes, 2=no
-	# z.iloc[n].DRNKANY5 = 1  # Binge drinkers (males having five or more drinks on one occasion, females having four or more drinks on one occasion) 1=no, 2=yes
-	# z.iloc[n]._RFDRHV7 = 1  # Heavy drinkers (adult men having more than 14 drinks per week and adult women having more than 7 drinks per week)  1=no, 2=yes
-	# z.iloc[n]._RFSEAT2 = 1  #  Always or Nearly Always Wear Seat Belts Calculated Variable  1=always or almost, 2=sometimes, seldon, or never
-	# z.iloc[n]._RFSEAT3 = 1  #   Always Wear Seat Belts Calculated Variable  1=always, 2=not always
-	# z.iloc[n]._DRNKDRV = 2  #   Drinking and Driving (Reported having driven at least once when perhaps had too much to drink)   1=yes, 2=no
-	#
-	# n = 3
-	# z.iloc[n] = pd.DataFrame(0, index=range(1), columns=X.columns)
-	# z.iloc[n].SLEPTIM1 = 8  # sleep time in hours
-	# z.iloc[n]._AGE80 = 70  # age
-	# z.iloc[n]._CHLDCNT = 1  # number of children +1 (1 = no children)
-	# z.iloc[n].DROCDY3_ = 2  # drink occasions per day
-	# z.iloc[n]._DRNKWK1 = 24  # drinks per week
-	# z.iloc[n]._STATE = 1  # state https://www.cdc.gov/brfss/annual_data/2020/pdf/codebook20_llcp-v2-508.pdf
-	# z.iloc[n].SEXVAR = 1  # sex male = 1, female = 2
-	# z.iloc[n].HLTHPLN1 = 2  # health plan yes = 1, no = 2
-	# z.iloc[n].PERSDOC2 = 3  # personal doctor yes = 1, more = 2, no = 3 Do you have one person you think of as your personal doctor or health care provider? (If ´No´ ask ´Is there more than one or is there no person who you think of as your personal doctor or health care provider?´.)
-	# z.iloc[n].MEDCOST = 1  # Was there a time in the past 12 months when you needed to see a doctor but could not because of cost? 1 =yes, 2=no
-	# z.iloc[n].EXERANY2 = 2  # During the past month, other than your regular job, did you participate in any physical activities or exercises such as running, calisthenics, golf, gardening, or walking for exercise? 1=yes, 2=no
-	# z.iloc[n].ASTHMA3 = 1  #  (Ever told) (you had) asthma? 1=yes, 2=no
-	# z.iloc[n].CHCSCNCR = 1  #  (Ever told) (you had) skin cancer? 1=yes, 2=no
-	# z.iloc[n].CHCOCNCR = 1  # (Ever told) (you had) any other types of cancer? 1=yes, 2=no
-	# z.iloc[n].QSTLANG = 2  # Language identifier 1 english 2 spanish 3 other
-	# z.iloc[n]._IMPRACE = 2  # Imputed race/ethnicity value (This value is the reported race/ethnicity or an imputed race/ethnicity, if the respondent refused to give a race/ethnicity. The value of the imputed race/ethnicity will be the most common race/ethnicity response for that region of the state)
-	# z.iloc[n]._RFHLTH = 2  #  Adults with good or better health (good or better = 1, fair or poor = 2)
-	# z.iloc[n]._PHYS14D = 3  #  3 level not good physical health status: 0 days, 1-13 days, 14-30 days (1 Zero days when physical health not good, 2 for 1-13 days when physical health not good, 3 for 14+ days when physical health not good )
-	# z.iloc[n]._MENT14D = 3  #  3 level not good mental health status: 0 days, 1-13 days, 14-30 days (1 Zero days when physical health not good, 2 for 1-13 days when physical health not good, 3 for 14+ days when physical health not good )
-	# z.iloc[n]._HCVU651 = 2  #  Respondents aged 18-64 who have any form of health care coverage
-	# z.iloc[n]._TOTINDA = 2  #  Adults who reported doing physical activity or exercise during the past 30 days other than their regular job
-	# z.iloc[n]._LTASTH1 = 2  #   Adults who have ever been told they have asthma 1 = no, 2 = yes
-	# z.iloc[n]._CASTHM1 = 2  #   Adults who have been told they currently have asthma  1 = no, 2 = yes
-	# z.iloc[n]._ASTHMS1 = 3  #   Adults who have been told they currently have asthma  3 = never, 2 = former, 1 = current
-	# z.iloc[n]._EXTETH3 = 2  #   Adults aged 18+ who have had permanent teeth extracted 1 = no, 2 = yes
-	# z.iloc[n]._DENVST3 = 2  #   Adults who have visited a dentist, dental hygenist or dental clinic within the past year 1=yes, 2=no
-	# z.iloc[n]._HISPANC = 1  #   Hispanic, Latino/a, or Spanish origin calculated variable 1=yes, 2=no
-	# z.iloc[n]._SEX = 1  #   Calculated sex variable
-	# z.iloc[n]._RFBMI5 = 2  #   Adults who have a body mass index greater than 25.00 (Overweight or Obese) 1=no, 2=yes
-	# z.iloc[n]._EDUCAG = 1  #   Level of education completed (1 Did not graduate High School, 2 Graduated High School, 3Attended College or Technical School, 4 Graduated from College or Technical School, 9 don't know
-	# z.iloc[n]._INCOMG = 2  #  Income categories (1 Less than $15,000, 2 $15,000 to less than $25,000, 3 $25,000 to less than $35,000, 4 $35,000 to less than $50,000, 5 $50,000 or more, 9 dont know
-	# z.iloc[n]._SMOKER3 = 1  # Four-level smoker status: Everyday smoker, Someday smoker, Former smoker, Non-smoker
-	# z.iloc[n]._RFSMOK3 = 2  # Adults who are current smokers 1=no, 2=yes
-	# z.iloc[n].DRNKANY5 = 1  # Adults who reported having had at least one drink of alcohol in the past 30 days. 1=yes, 2=no
-	# z.iloc[n].DRNKANY5 = 2  # Binge drinkers (males having five or more drinks on one occasion, females having four or more drinks on one occasion) 1=no, 2=yes
-	# z.iloc[n]._RFDRHV7 = 2 # Heavy drinkers (adult men having more than 14 drinks per week and adult women having more than 7 drinks per week)  1=no, 2=yes
-	# z.iloc[n]._RFSEAT2 = 2  #  Always or Nearly Always Wear Seat Belts Calculated Variable  1=always or almost, 2=sometimes, seldon, or never
-	# z.iloc[n]._RFSEAT3 = 2  #   Always Wear Seat Belts Calculated Variable  1=always, 2=not always
-	# z.iloc[n]._DRNKDRV = 1  #   Drinking and Driving (Reported having driven at least once when perhaps had too much to drink)   1=yes, 2=no
-	#
-	# z.isnull().values.any()
-	# z.shape
-	#
-	#
-	# # X_new = [[...], [...]]
-	# y_new = model.predict(z)
-	# print(y_new)
+	model = load_model('./source/' + model_name)
+	z = pd.DataFrame(0, index=range(4), columns=X.columns)
+	z.shape
+	z.iloc[0] = X.mean().astype(int).transpose()
+	z.iloc[1] = pd.DataFrame(0, index=range(1), columns=X.columns)
+	z = z.astype(float)
+	z.shape
+	z
+	z.columns
+
+	n = 2
+	z.iloc[n] = pd.DataFrame(0, index=range(1), columns=X.columns)
+	z.iloc[n]._STATE        = 6         # geographical state]
+	z.iloc[n].SEXVAR        = 1          # Sex of Respondent 1 MALE, 2 FEMALE
+	z.iloc[n]._RFHLTH       = 1        # Health Status  1 Good or Better Health 2 Fair or Poor Health	# 9 Don’t know/ Not Sure Or Refused/ Missing
+	z.iloc[n]._PHYS14D      = 1        # Healthy Days 1 Zero days when physical health not good 	#  2 1-13 days when physical health not good # 3 14+ days when physical health not good # 9 Don’t know/ Refused/Missing
+	z.iloc[n]._MENT14D      = 2        # SAME AS PHYS
+	z.iloc[n]._HCVU651      =  1       # Health Care Access  1 Have health care coverage 2 Do not have health care coverage 9 Don’t know/ Not Sure, Refused or Missing
+	z.iloc[n]._TOTINDA      =  1       # Exercise 1 Had physical activity or exercise 2 No physical activity or exercise in last 30 days 9 Don’t know/ Refused/ Missing
+	z.iloc[n]._ASTHMS1      =  3      # asthma? 1 current 2 former 3 never
+	z.iloc[n]._DRDXAR2      =  2       # ever arthritis? 1 Diagnosed with arthritis 2 Not diagnosed with arthritis
+	z.iloc[n]._EXTETH3      =  1       # ever had teeth extracted? 1 no 2 yes 9 dont know
+	z.iloc[n]._DENVST3      =  2       # dentist in past year? 1 yes 2 no 9 don't know
+	z.iloc[n]._RACE     =     1          # 1 White only, nonHispanic, 2 Black only, nonHispanic, 3 American Indian or Alaskan Native only,Non-Hispanic 4 Asian only, nonHispanic  5 Native Hawaiian or other Pacific Islander only, Non-Hispanic 6 Other race only, nonHispanic 7 Multiracial, nonHispanic 8 Hispan
+	z.iloc[n]._EDUCAG       =  3       # level of education completed 1 no grad high school, 2 high school, 3 some college, 4 graduated college, 9 don't know
+	z.iloc[n]._INCOMG       =   5      # Income categories (1 Less than $15,000, 2 $15,000 to less than $25,000, 3 $25,000 to less than $35,000, 4 $35,000 to less than $50,000, 5 $50,000 or more, 9 dont know
+	z.iloc[n]._METSTAT      =   2      # metropolitan status 1 yes, 2 no
+	z.iloc[n]._URBSTAT      =   1      # urban rural status 1 urban 2 rural
+	z.iloc[n]._SMOKER3      =   4      # four-level smoker status: everyday smoker, someday smoker, former smoker, non-smoker
+	z.iloc[n].DRNKANY5      =   1      # had at least one drink of alcohol in the past 30 days
+	z.iloc[n]._RFBING5      =   1      # binge drinkers (males having five or more drinks on one occasion, females having four or more drinks on one occasion 1 no 2 yes
+	z.iloc[n]._RFDRHV7      =   1      # heavy drinkers 14 drinks per week or less, or Female Respondents who reported having 7 drinks per week or less 1 no 2 yes
+	z.iloc[n]._PNEUMO3      =   2      # ever had a pneumonia vaccination
+	z.iloc[n]._RFSEAT3      =   1      # always wear seat belts 1 yes 2 no
+	z.iloc[n]._DRNKDRV      =   2      # drinking and driving 1 yes 2 no
+	z.iloc[n]._RFMAM22      =   2      # mammogram in the past two years 1 yes 2 no
+	z.iloc[n]._FLSHOT7      =   1      # flu shot within the past year 1 yes 2 no
+	z.iloc[n]._RFPAP35      =   2      # Pap test in the past three years 1 yes 2 no
+	z.iloc[n]._RFPSA23      =   2      # PSA test in the past 2 years
+	z.iloc[n]._CRCREC1      =   3      # fully met the USPSTF recommendations for rectal cancer screening 1 yes, 2 yes but not within time, 3 never
+	z.iloc[n]._AIDTST4      =   2      # ever been tested for HIV
+	z.iloc[n].PERSDOC2      =   3      # personal doctor yes = 1, more = 2, no = 3 Do you have one person you think of as your personal doctor or health care provider? (If ´No´ ask ´Is there more than one or is there no person who you think of as your personal doctor or health care provider?´.)
+	z.iloc[n].CHCSCNCR      =   2      # (Ever told) (you had) skin cancer? 1 yes 2 no
+	z.iloc[n].CHCOCNCR      =   2      # (Ever told) (you had) any other types of cancer? 1 yes 2 no
+	z.iloc[n].CHCCOPD2      =   2      # (Ever told) (you had) chronic obstructive pulmonary disease, C.O.P.D., emphysema or chronic bronchitis? 1 yes 2 no
+	z.iloc[n].QSTLANG       =   1      # 1 english 2 spanish
+	z.iloc[n].ADDEPEV3      =   2      # (Ever told) (you had) a depressive disorder (including depression, major depression, dysthymia, or minor depression)? 1 yes 2 no
+	z.iloc[n].CHCKDNY2      =   2      # Not including kidney stones, bladder infection or incontinence, were you ever told you had kidney disease?  1 yes 2 no
+	z.iloc[n].DIABETE4      =   2      # (Ever told) (you had) diabetes? 1 yes 2 no
+	z.iloc[n].MARITAL       =   1      # (marital status) 1 married 2 divorced 3 widowed 4 separated 5 never married 6 member of unmarried couple
+	z.iloc[n]._AGE80        =   32      # imputed age value collapsed above 80
+	z.iloc[n].HTM4      =       177        # height in centimeters
+	z.iloc[n].WTKG3     =       73        # weight in kilograms, implied 2 decimal places
+	z.iloc[n]._BMI5     =       (177/(73^2))        # body mass index
+	z.iloc[n]._CHLDCNT      = 1        # number of children in household.
+	z.iloc[n]._DRNKWK1      = 0        # total number of alcoholic beverages consumed per week.
+	z.iloc[n].SLEPTIM1      = 6        # how many hours of sleep do you get in a 24-hour period?
+	
+	n = 3
+	z.iloc[n] = pd.DataFrame(0, index=range(1), columns=X.columns)
+	z.iloc[n]._STATE        = 1         # geographical state]
+	z.iloc[n].SEXVAR        = 1          # Sex of Respondent 1 MALE, 2 FEMALE
+	z.iloc[n]._RFHLTH       = 2        # Health Status  1 Good or Better Health 2 Fair or Poor Health	# 9 Don’t know/ Not Sure Or Refused/ Missing
+	z.iloc[n]._PHYS14D      = 3        # Healthy Days 1 Zero days when physical health not good 	#  2 1-13 days when physical health not good # 3 14+ days when physical health not good # 9 Don’t know/ Refused/Missing
+	z.iloc[n]._MENT14D      = 2        # SAME AS PHYS
+	z.iloc[n]._HCVU651      =  2       # Health Care Access  1 Have health care coverage 2 Do not have health care coverage 9 Don’t know/ Not Sure, Refused or Missing
+	z.iloc[n]._TOTINDA      =  2       # Exercise 1 Had physical activity or exercise 2 No physical activity or exercise in last 30 days 9 Don’t know/ Refused/ Missing
+	z.iloc[n]._ASTHMS1      =  2      # asthma? 1 current 2 former 3 never
+	z.iloc[n]._DRDXAR2      =  1       # ever arthritis? 1 Diagnosed with arthritis 2 Not diagnosed with arthritis
+	z.iloc[n]._EXTETH3      =  2       # ever had teeth extracted? 1 no 2 yes 9 dont know
+	z.iloc[n]._DENVST3      =  2       # dentist in past year? 1 yes 2 no 9 don't know
+	z.iloc[n]._RACE     =     2          # 1 White only, nonHispanic, 2 Black only, nonHispanic, 3 American Indian or Alaskan Native only,Non-Hispanic 4 Asian only, nonHispanic  5 Native Hawaiian or other Pacific Islander only, Non-Hispanic 6 Other race only, nonHispanic 7 Multiracial, nonHispanic 8 Hispan
+	z.iloc[n]._EDUCAG       =  2       # level of education completed 1 no grad high school, 2 high school, 3 some college, 4 graduated college, 9 don't know
+	z.iloc[n]._INCOMG       =   3      # Income categories (1 Less than $15,000, 2 $15,000 to less than $25,000, 3 $25,000 to less than $35,000, 4 $35,000 to less than $50,000, 5 $50,000 or more, 9 dont know
+	z.iloc[n]._METSTAT      =   2      # metropolitan status 1 yes, 2 no
+	z.iloc[n]._URBSTAT      =   2      # urban rural status 1 urban 2 rural
+	z.iloc[n]._SMOKER3      =   1      # four-level smoker status: everyday smoker, someday smoker, former smoker, non-smoker
+	z.iloc[n].DRNKANY5      =   2      # had at least one drink of alcohol in the past 30 days
+	z.iloc[n]._RFBING5      =   2      # binge drinkers (males having five or more drinks on one occasion, females having four or more drinks on one occasion 1 no 2 yes
+	z.iloc[n]._RFDRHV7      =   2      # heavy drinkers 14 drinks per week or less, or Female Respondents who reported having 7 drinks per week or less 1 no 2 yes
+	z.iloc[n]._PNEUMO3      =   1      # ever had a pneumonia vaccination
+	z.iloc[n]._RFSEAT3      =   2      # always wear seat belts 1 yes 2 no
+	z.iloc[n]._DRNKDRV      =   1      # drinking and driving 1 yes 2 no
+	z.iloc[n]._RFMAM22      =   2      # mammogram in the past two years 1 yes 2 no
+	z.iloc[n]._FLSHOT7      =   1      # flu shot within the past year 1 yes 2 no
+	z.iloc[n]._RFPAP35      =   2      # Pap test in the past three years 1 yes 2 no
+	z.iloc[n]._RFPSA23      =   2      # PSA test in the past 2 years
+	z.iloc[n]._CRCREC1      =   3      # fully met the USPSTF recommendations for rectal cancer screening 1 yes, 2 yes but not within time, 3 never
+	z.iloc[n]._AIDTST4      =   2      # ever been tested for HIV
+	z.iloc[n].PERSDOC2      =   3      # personal doctor yes = 1, more = 2, no = 3 Do you have one person you think of as your personal doctor or health care provider? (If ´No´ ask ´Is there more than one or is there no person who you think of as your personal doctor or health care provider?´.)
+	z.iloc[n].CHCSCNCR      =   1      # (Ever told) (you had) skin cancer? 1 yes 2 no
+	z.iloc[n].CHCOCNCR      =   1      # (Ever told) (you had) any other types of cancer? 1 yes 2 no
+	z.iloc[n].CHCCOPD2      =   1      # (Ever told) (you had) chronic obstructive pulmonary disease, C.O.P.D., emphysema or chronic bronchitis? 1 yes 2 no
+	z.iloc[n].QSTLANG       =   2      # 1 english 2 spanish
+	z.iloc[n].ADDEPEV3      =   1      # (Ever told) (you had) a depressive disorder (including depression, major depression, dysthymia, or minor depression)? 1 yes 2 no
+	z.iloc[n].CHCKDNY2      =   1      # Not including kidney stones, bladder infection or incontinence, were you ever told you had kidney disease?  1 yes 2 no
+	z.iloc[n].DIABETE4      =   1      # (Ever told) (you had) diabetes? 1 yes 2 no
+	z.iloc[n].MARITAL       =   2      # (marital status) 1 married 2 divorced 3 widowed 4 separated 5 never married 6 member of unmarried couple
+	z.iloc[n]._AGE80        =   70      # imputed age value collapsed above 80
+	z.iloc[n].HTM4      =       177        # height in centimeters
+	z.iloc[n].WTKG3     =       93        # weight in kilograms, implied 2 decimal places
+	z.iloc[n]._BMI5     =       int(z.iloc[n].HTM4) / (int(z.iloc[n].WTKG3) ^ 2)        # body mass index
+	z.iloc[n]._CHLDCNT      = 5        # number of children in household.
+	z.iloc[n]._DRNKWK1      = 12        # total number of alcoholic beverages consumed per week.
+	z.iloc[n].SLEPTIM1      = 4        # how many hours of sleep do you get in a 24-hour period?
+
+
+	z.isnull().values.any()
+	z.shape
+
+
+	# X_new = [[...], [...]]
+	y_new = model.predict(z)
+	print(y_new)
 	
 	pass
 
