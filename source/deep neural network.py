@@ -248,7 +248,7 @@ if __name__ ==  "__main__":
 	# 	outs.append(array)
 	
 	history = model.fit(
-			X, y,    #train_X, train_y,  #
+			X, y,    # train_X, train_y,  #
 			# validation_data=(val_X, val_y),
 			batch_size=256*2*m,
 			epochs=8,
@@ -256,24 +256,20 @@ if __name__ ==  "__main__":
 			# verbose=0,  # turn off training log
 	)
 	
-	
 	# convert the training history to a dataframe
 	history_df = pd.DataFrame(history.history)
 	# history_df.loc[:, ['loss', 'val_loss']].plot(title="Cross-entropy")
 	# history_df.loc[:, ['binary_accuracy', 'val_binary_accuracy']].plot(title="Accuracy")
 	
-	df1 = pd.DataFrame(history_df.loc[:, ['loss', 'val_loss']])
-	df2 = pd.DataFrame(history_df.loc[:, ['binary_accuracy', 'val_binary_accuracy']])
-	fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(6, 12))
-	axe = axes.ravel()
-	df1.plot(ax=axe[0], title="Cross-entropy")
-	df2.plot(ax=axe[1], title="Accuracy")
-	
-	plt.tight_layout()
-	
-	fig.savefig(fig_name)
-	
-	plt.show()
+	# df1 = pd.DataFrame(history_df.loc[:, ['loss', 'val_loss']])
+	# df2 = pd.DataFrame(history_df.loc[:, ['binary_accuracy', 'val_binary_accuracy']])
+	# fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(8, 16))
+	# axe = axes.ravel()
+	# df1.plot(ax=axe[0], title="Cross-entropy")
+	# df2.plot(ax=axe[1], title="Accuracy")
+	# plt.tight_layout()
+	# fig.savefig(fig_name)
+	# plt.show()
 	
 	model.save(model_name)
 	
