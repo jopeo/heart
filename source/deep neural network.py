@@ -24,12 +24,12 @@ print(tf.reduce_sum(tf.random.normal([1000, 1000])))
 #   the SAS Transport Format is used here:
 
 full_file = "LLCP2020.XPT"
-model_name = "model5.h5"
+model_name = "model6.h5"
 fig_name = model_name.split('.')[0] + '_plots'
 
 
-def load_data(full_file):
-	data_1 = pd.read_sas('./source/' + full_file)
+def load_data(name):
+	data_1 = pd.read_sas('./source/' + name)
 	data_2 = data_1.copy()
 	return data_1, data_2
 
@@ -181,33 +181,137 @@ if __name__ ==  "__main__":
 	
 	data_o.shape
 	data.shape
+	data.head()
 	
+
 	X = data.drop([i for i in data.columns if i in data.columns and i not in features_cat and i not in features_num and i not in ['_MICHD']], axis=1)
 	X.shape
 	
 	y = abs(data._MICHD - 2)
+	y.head()
+	y.describe()
 	X = X.drop(['_MICHD'], axis=1)
-	cols = X.columns
-	cols
-	X.shape
 	
+	X_mode = X.mode()
+	X_mode
+	X_mode.shape
 	imp = SimpleImputer(missing_values=np.nan, strategy='most_frequent')
-	X = pd.DataFrame(imp.fit_transform(X), columns=cols)
-	X
+	X = pd.DataFrame(imp.fit_transform(X), columns=X.columns)
+	X.head()
+	X.isnull().values.any()
+
+	train_X, val_X, train_y, val_y = train_test_split(X, y, random_state=1)
+	input_shape = [train_X.shape[1]]
+	input_shape  # = 45
+	
+	X_cats = train_X.drop([i for i in X.columns if i in X.columns and i not in features_cat], axis=1)
+	X_nums = train_X.drop([i for i in X.columns if i in X.columns and i not in features_num], axis=1)
+	X_cats.shape
+	X_nums.shape
+	X_cats.head()
+	
+	
+	def preprocess(inputs):
+		preprocessed = pd.DataFrame()
+		
+		for cat in features_cat:
+			# print(cat)
+			one_hots = OneHotEncoder()
+			cat_encoded = one_hots.fit_transform(inputs[[cat]])
+			cat_encoded_names = one_hots.get_feature_names_out([cat])
+			cat_encoded = pd.DataFrame(cat_encoded.todense(), columns=cat_encoded_names)
+			# print(cat_encoded_names)
+			# print(len(cat_encoded_names))
+			preprocessed = pd.concat([preprocessed, cat_encoded], axis=1)
+		
+		for num in features_num:
+			num_scaled = StandardScaler().fit_transform(inputs[[num]])
+			num_scaled = pd.DataFrame(num_scaled, columns=[num])
+			preprocessed = pd.concat([preprocessed, num_scaled], axis=1)
+			
+		return preprocessed
+
+	q = preprocess(train_X)
+
+
+	# encoded = pd.concat([nums_scaled, cats_encoded], axis=1)
+	# encoded
+
+	
+	# my_layers = []
+	# layer = layers.IntegerLookup(output_mode='one_hot')
+	# layer.adapt(X[features_cat[0]])
+	# layer([6])
+	# layer.get_vocabulary()
+	# my_layers.append(layer)
+	
+# 	my_layers = []
+# 	for feat in features_cat:
+# 		layer = layers.CategoryEncoding(
+# 				num_tokens=len(train_X[feat].unique()),
+# 				output_mode='one_hot'
+# 		)
+# 		my_layers.append(layer)
+# 		print(f'Appended {feat} layer {layer}')
+#
+# 	for feat in features_num:
+# 		layer = layers.Normalization()
+# 		layer.adapt(train_X[feat])
+# 		my_layers.append(layer)
+# 		print(f'Appended {feat} layer {layer}')
+#
+# 	def preprocessing_layer(inputs):
+# 		preprocessed = pd.DataFrame()
+# 		for cat in features_cat:
+# 			pre_data = my_layers[features_cat.index(cat)](inputs[cat])
+# 			pre_data = pd.DataFrame(pre_data)
+# 			preprocessed = pd.concat([preprocessed, pre_data], axis=1)
+# 			print(pre_data)
+# 		for num in features_num:
+# 			# print(features_num.index(feat)+38)
+# 			# print(features_num.index(feat))
+# 			pre_data = my_layers[features_num.index(num)+38](inputs[num])
+# 			pre_data = pd.DataFrame(pre_data)
+# 			preprocessed = pd.concat([preprocessed, pre_data], axis=1)
+# 			# print(pre_data)
+# 		return preprocessed
+#
+# 	q = preprocessing_layer(z.iloc[0])
+# 	q
+# 	q.shape
+# 	z.iloc[0]
+# 	z
+# 	w = pd.concat(q)
+# 	w.concat(q)
+# 	type(q)
+#
+# z.shape
+
+
+	
+	# layer = layers.CategoryEncoding(
+		# 		num_tokens=len(X[features_cat[0]].unique()),
+		# 		output_mode='one_hot'
+		# )
+		# layer(X[features_cat[0]])
+		
+	layer.get_vocabulary()
+	layer([1])
+	len(X[features_cat[0]].unique())
+	X[features_cat[0]].unique()
 	
 	# preprocessor = make_column_transformer(
 	# 		(StandardScaler(), features_num),
-	# 		(OneHotEncoder(), features_cat),
+	# 		(encoder, features_cat),
 	# )
 	# X = pd.DataFrame(preprocessor.fit_transform(X).toarray())
 	
-	X.isnull().values.any()
-	X.shape
+	# X.isnull().values.any()
+	# X.shape
 	
-	train_X, val_X, train_y, val_y = train_test_split(X, y, random_state=1)
-	
-	input_shape = [train_X.shape[1]]
-	input_shape
+	# lookup = layers.IntegerLookup(output_mode='int')
+	# lookup.adapt(train_X)
+	# lookup(val_X)
 	
 	early_stopping = EarlyStopping(
 			min_delta=0.001,  # minimium amount of change to count as an improvement
