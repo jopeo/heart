@@ -24,7 +24,7 @@ print(tf.reduce_sum(tf.random.normal([1000, 1000])))
 #   the SAS Transport Format is used here:
 
 full_file = "LLCP2020.XPT"
-model_name = "model6.h5"
+model_name = "model7.h5"
 fig_name = model_name.split('.')[0] + '_plots'
 
 
@@ -108,7 +108,16 @@ def preprocess(inputs):
 	return preprocessed
 
 
-def process(inputs):
+def process(prediction_data):
+	# rows_to_keep = q.shape[0]
+	rows_to_keep = prediction_data.shape[0]
+	
+	# inputs = pd.concat([X, z])
+	inputs = pd.concat([X, prediction_data])
+	inputs.shape
+	
+	# todo: replace NaNs with most frequent (mode) (X_mode)
+	
 	processed = pd.DataFrame()
 	
 	for cat in features_cat:
@@ -119,14 +128,17 @@ def process(inputs):
 		cat_encoded = pd.DataFrame(cat_encoded.todense(), columns=cat_encoded_names)
 		# print(cat_encoded_names)
 		# print(len(cat_encoded_names))
-		preprocessed = pd.concat([processed, cat_encoded], axis=1)
+		processed = pd.concat([processed, cat_encoded], axis=1)
 	
 	for num in features_num:
 		num_scaled = StandardScaler().fit_transform(inputs[[num]])
 		num_scaled = pd.DataFrame(num_scaled, columns=[num])
-		preprocessed = pd.concat([processed, num_scaled], axis=1)
+		processed = pd.concat([processed, num_scaled], axis=1)
 	
-	return processed
+	to_model = processed.iloc[processed.shape[0]-rows_to_keep:].copy()
+	to_model.shape
+	
+	return to_model
 
 
 # data.head()
@@ -243,8 +255,8 @@ if __name__ ==  "__main__":
 	X.isnull().values.any()
 
 	train_X, val_X, train_y, val_y = train_test_split(X, y, random_state=1)
-	input_shape = [train_X.shape[1]]
-	input_shape  # = 45
+	# input_shape = [train_X.shape[1]]
+	# input_shape  # = 45
 	
 	X_cats = train_X.drop([i for i in X.columns if i in X.columns and i not in features_cat], axis=1)
 	X_nums = train_X.drop([i for i in X.columns if i in X.columns and i not in features_num], axis=1)
@@ -252,8 +264,13 @@ if __name__ ==  "__main__":
 	X_nums.shape
 	X_cats.head()
 	
-	train_X_preprocessed = preprocess(train_X)
-	val_X_preprocessed = preprocess(val_X)
+	# train_X_preprocessed = preprocess(train_X)
+	# val_X_preprocessed = preprocess(val_X)
+	X_preprocessed = preprocess(X)
+	X_preprocessed.shape
+	# input_shape = [train_X_preprocessed.shape[1]]
+	input_shape = [X_preprocessed.shape[1]]
+	input_shape
 
 	# encoded = pd.concat([nums_scaled, cats_encoded], axis=1)
 	# encoded
@@ -373,10 +390,11 @@ if __name__ ==  "__main__":
 	# 	outs.append(array)
 	
 	history = model.fit(
-			X, y,    # train_X, train_y,  #
+			X_preprocessed, y,   #  train_X_preprocessed, train_y,  # X, y,    # train_X, train_y,  #
+			# validation_data=(val_X_preprocessed, val_y),
 			# validation_data=(val_X, val_y),
 			batch_size=256*2*m,
-			epochs=11,
+			epochs=8,
 			callbacks=[early_stopping],  # put your callbacks in a list
 			# verbose=0,  # turn off training log
 	)
@@ -385,7 +403,7 @@ if __name__ ==  "__main__":
 	# history_df = pd.DataFrame(history.history)
 	# history_df.loc[:, ['loss', 'val_loss']].plot(title="Cross-entropy")
 	# history_df.loc[:, ['binary_accuracy', 'val_binary_accuracy']].plot(title="Accuracy")
-	
+	#
 	# df1 = pd.DataFrame(history_df.loc[:, ['loss', 'val_loss']])
 	# df2 = pd.DataFrame(history_df.loc[:, ['binary_accuracy', 'val_binary_accuracy']])
 	# fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(8, 16))
@@ -398,8 +416,8 @@ if __name__ ==  "__main__":
 	
 	model.save('./source/' + model_name)
 
-	model = load_model('./source/' + model_name)
-	z = pd.DataFrame(0, index=range(4), columns=X.columns)
+	# model = load_model('./source/' + model_name)
+	z = pd.DataFrame(0, index=range(3), columns=X.columns)
 	z.shape
 	z.iloc[0] = X.mean().astype(int).transpose()
 	z.iloc[1] = pd.DataFrame(0, index=range(1), columns=X.columns)
@@ -408,7 +426,7 @@ if __name__ ==  "__main__":
 	z
 	z.columns
 
-	n = 2
+	n = 1
 	z.iloc[n] = pd.DataFrame(0, index=range(1), columns=X.columns)
 	z.iloc[n]._STATE        = 6         # geographical state]
 	z.iloc[n].SEXVAR        = 1          # Sex of Respondent 1 MALE, 2 FEMALE
@@ -456,7 +474,7 @@ if __name__ ==  "__main__":
 	z.iloc[n]._DRNKWK1      = 0        # total number of alcoholic beverages consumed per week.
 	z.iloc[n].SLEPTIM1      = 6        # how many hours of sleep do you get in a 24-hour period?
 
-	n = 3
+	n = 2
 	z.iloc[n] = pd.DataFrame(0, index=range(1), columns=X.columns)
 	z.iloc[n]._STATE        = 1         # geographical state]
 	z.iloc[n].SEXVAR        = 1          # Sex of Respondent 1 MALE, 2 FEMALE
@@ -507,12 +525,14 @@ if __name__ ==  "__main__":
 
 	z.isnull().values.any()
 	z.shape
-
+	
+	q = process(z)
+	q.shape
 
 	# X_new = [[...], [...]]
-	y_new = model.predict(z)
+	y_new = model.predict(q)
 	print(y_new)
-	
+
 	pass
 
 
