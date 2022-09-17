@@ -85,6 +85,48 @@ def clean_data(data):
 	data.MARITAL = data.MARITAL.replace(9, int(data.MARITAL.mode()))
 	data = data[data.QSTLANG < 3]  # responded english or spanish to language (only 1 respondent said other)
 	return data
+	
+	
+def preprocess(inputs):
+	preprocessed = pd.DataFrame()
+	
+	for cat in features_cat:
+		# print(cat)
+		one_hots = OneHotEncoder()
+		cat_encoded = one_hots.fit_transform(inputs[[cat]])
+		cat_encoded_names = one_hots.get_feature_names_out([cat])
+		cat_encoded = pd.DataFrame(cat_encoded.todense(), columns=cat_encoded_names)
+		# print(cat_encoded_names)
+		# print(len(cat_encoded_names))
+		preprocessed = pd.concat([preprocessed, cat_encoded], axis=1)
+	
+	for num in features_num:
+		num_scaled = StandardScaler().fit_transform(inputs[[num]])
+		num_scaled = pd.DataFrame(num_scaled, columns=[num])
+		preprocessed = pd.concat([preprocessed, num_scaled], axis=1)
+	
+	return preprocessed
+
+
+def process(inputs):
+	processed = pd.DataFrame()
+	
+	for cat in features_cat:
+		# print(cat)
+		one_hots = OneHotEncoder()
+		cat_encoded = one_hots.fit_transform(inputs[[cat]])
+		cat_encoded_names = one_hots.get_feature_names_out([cat])
+		cat_encoded = pd.DataFrame(cat_encoded.todense(), columns=cat_encoded_names)
+		# print(cat_encoded_names)
+		# print(len(cat_encoded_names))
+		preprocessed = pd.concat([processed, cat_encoded], axis=1)
+	
+	for num in features_num:
+		num_scaled = StandardScaler().fit_transform(inputs[[num]])
+		num_scaled = pd.DataFrame(num_scaled, columns=[num])
+		preprocessed = pd.concat([processed, num_scaled], axis=1)
+	
+	return processed
 
 
 # data.head()
@@ -210,29 +252,8 @@ if __name__ ==  "__main__":
 	X_nums.shape
 	X_cats.head()
 	
-	
-	def preprocess(inputs):
-		preprocessed = pd.DataFrame()
-		
-		for cat in features_cat:
-			# print(cat)
-			one_hots = OneHotEncoder()
-			cat_encoded = one_hots.fit_transform(inputs[[cat]])
-			cat_encoded_names = one_hots.get_feature_names_out([cat])
-			cat_encoded = pd.DataFrame(cat_encoded.todense(), columns=cat_encoded_names)
-			# print(cat_encoded_names)
-			# print(len(cat_encoded_names))
-			preprocessed = pd.concat([preprocessed, cat_encoded], axis=1)
-		
-		for num in features_num:
-			num_scaled = StandardScaler().fit_transform(inputs[[num]])
-			num_scaled = pd.DataFrame(num_scaled, columns=[num])
-			preprocessed = pd.concat([preprocessed, num_scaled], axis=1)
-			
-		return preprocessed
-
-	q = preprocess(train_X)
-
+	train_X_preprocessed = preprocess(train_X)
+	val_X_preprocessed = preprocess(val_X)
 
 	# encoded = pd.concat([nums_scaled, cats_encoded], axis=1)
 	# encoded
@@ -295,10 +316,10 @@ if __name__ ==  "__main__":
 		# )
 		# layer(X[features_cat[0]])
 		
-	layer.get_vocabulary()
-	layer([1])
-	len(X[features_cat[0]].unique())
-	X[features_cat[0]].unique()
+	# layer.get_vocabulary()
+	# layer([1])
+	# len(X[features_cat[0]].unique())
+	# X[features_cat[0]].unique()
 	
 	# preprocessor = make_column_transformer(
 	# 		(StandardScaler(), features_num),
@@ -355,7 +376,7 @@ if __name__ ==  "__main__":
 			X, y,    # train_X, train_y,  #
 			# validation_data=(val_X, val_y),
 			batch_size=256*2*m,
-			epochs=8,
+			epochs=11,
 			callbacks=[early_stopping],  # put your callbacks in a list
 			# verbose=0,  # turn off training log
 	)
@@ -372,11 +393,11 @@ if __name__ ==  "__main__":
 	# df1.plot(ax=axe[0], title="Cross-entropy")
 	# df2.plot(ax=axe[1], title="Accuracy")
 	# plt.tight_layout()
-	# fig.savefig(fig_name)
+	# fig.savefig('./source/' + fig_name)
 	# plt.show()
 	
 	model.save('./source/' + model_name)
-	
+
 	model = load_model('./source/' + model_name)
 	z = pd.DataFrame(0, index=range(4), columns=X.columns)
 	z.shape
@@ -434,7 +455,7 @@ if __name__ ==  "__main__":
 	z.iloc[n]._CHLDCNT      = 1        # number of children in household.
 	z.iloc[n]._DRNKWK1      = 0        # total number of alcoholic beverages consumed per week.
 	z.iloc[n].SLEPTIM1      = 6        # how many hours of sleep do you get in a 24-hour period?
-	
+
 	n = 3
 	z.iloc[n] = pd.DataFrame(0, index=range(1), columns=X.columns)
 	z.iloc[n]._STATE        = 1         # geographical state]
