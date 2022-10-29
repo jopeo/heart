@@ -75,6 +75,12 @@ hcvu651s = ("Yes", "No")
 
 totindas = ("Yes", "No")
 
+asthms1s = ("Currently have asthma", "Previously had asthma", "Never been diagnosed with asthma")
+
+drdxar2s = ("Yes", "No")
+
+exteth3s = ("Yes", "No")
+
 
 def show_predict_page():
 
@@ -86,11 +92,16 @@ def show_predict_page():
 	age = st.slider("What is your age?", 0, 100)
 	rfhealth = st.radio("How would you describe your health?", rfhealths)
 	phys14d = st.slider("During the past month, how many days were you physically ill or injured?", 0, 30)
-	ment14d = st.slider("During the past month, how many days were you either stressed, depressed, or not well emotionally?", 0, 30)
+	ment14d = st.slider("During the past month, how many days were you either stressed, depressed, or not well"
+	                    " emotionally?", 0, 30)
 	hcvu651 = st.radio("Do you have any kind of health care coverage, including health insurance, prepaid plans such as HMOs,"
 	                   " or government plans such as Medicare, or Indian Health Service?", hcvu651s)
 	totinda = st.radio("During the past month, other than your regular job, did you participate in any physical activities or"
 	                   " exercises such as running, calisthenics, golf, gardening, or walking for exercise?", totindas)
+	asthms1 = st.radio("Have you ever had a doctor diagnose you with asthma?", asthms1s)
+	drdxar2 = st.radio("Have you ever had a doctor diagnose you with any form of arthritis?", drdxar2s)
+	exteth3 = st.radio("Have you ever had a permanent tooth extracted?", exteth3s)
+	
 	
 
 
