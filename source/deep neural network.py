@@ -517,7 +517,7 @@ if __name__ ==  "__main__":
 	z.iloc[n]._AGE80        =   70      # imputed age value collapsed above 80
 	z.iloc[n].HTM4      =       177        # height in centimeters
 	z.iloc[n].WTKG3     =       93        # weight in kilograms, implied 2 decimal places
-	z.iloc[n]._BMI5     =       int(z.iloc[n].HTM4) / (int(z.iloc[n].WTKG3) ^ 2)        # body mass index
+	z.iloc[n]._BMI5     =       int(z.iloc[n].WTKG3) / (int(z.iloc[n].HTM4) ^ 2)        # body mass index
 	z.iloc[n]._CHLDCNT      = 5        # number of children in household.
 	z.iloc[n]._DRNKWK1      = 12        # total number of alcoholic beverages consumed per week.
 	z.iloc[n].SLEPTIM1      = 4        # how many hours of sleep do you get in a 24-hour period?
