@@ -1,16 +1,22 @@
 #!/usr/bin/env python
 
-import pandas as pd
-import numpy
 import streamlit as st
-import tensorflow as tf
-from tensorflow import keras
-from keras import layers
+from pandas import DataFrame, concat, read_hdf
 from keras.models import load_model
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
 st.set_page_config(page_title="Heart Disease Prediction",
-                   page_icon='../Images/heart.png')
+                   page_icon='./res/heart.png')
+
+hide_menu_style = """
+        <style>
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        </style>
+        """
+st.markdown(hide_menu_style, unsafe_allow_html=True)
+
+st.image('./res/heart_section.gif')
 
 df_name = "df.h5"
 model_name = "model8.h5"
@@ -265,27 +271,27 @@ def process(prediction_data, X):
 	rows_to_keep = prediction_data.shape[0]
 	
 	# inputs = pd.concat([X, z])
-	inputs = pd.concat([X, prediction_data])
+	inputs = concat([X, prediction_data])
 	# inputs.shape
 	
 	# todo: replace NaNs with most frequent (mode) (X_mode)
 	
-	processed = pd.DataFrame()
+	processed = DataFrame()
 	
 	for cat in features_cat:
 		# print(cat)
 		one_hots = OneHotEncoder()
 		cat_encoded = one_hots.fit_transform(inputs[[cat]])
 		cat_encoded_names = one_hots.get_feature_names_out([cat])
-		cat_encoded = pd.DataFrame(cat_encoded.todense(), columns=cat_encoded_names)
+		cat_encoded = DataFrame(cat_encoded.todense(), columns=cat_encoded_names)
 		# print(cat_encoded_names)
 		# print(len(cat_encoded_names))
-		processed = pd.concat([processed, cat_encoded], axis=1)
+		processed = concat([processed, cat_encoded], axis=1)
 	
 	for num in features_num:
 		num_scaled = StandardScaler().fit_transform(inputs[[num]])
-		num_scaled = pd.DataFrame(num_scaled, columns=[num])
-		processed = pd.concat([processed, num_scaled], axis=1)
+		num_scaled = DataFrame(num_scaled, columns=[num])
+		processed = concat([processed, num_scaled], axis=1)
 	
 	to_model = processed.iloc[processed.shape[0] - rows_to_keep:].copy()
 	# to_model.shape
@@ -295,8 +301,8 @@ def process(prediction_data, X):
 
 def show_predict_page():
 	
-	X = pd.read_hdf(df_name)
-	new_entry = pd.DataFrame(0, index=range(1), columns=X.columns)
+	X = read_hdf(df_name)
+	new_entry = DataFrame(0, index=range(1), columns=X.columns)
 	
 	st.title("Heart Disease Prediction")
 	st.subheader("A deep neural network for predicting heart disease")
@@ -306,6 +312,7 @@ def show_predict_page():
 	new_entry.iloc[0]._STATE = states.index(state) + 1
 	
 	metstat = st.radio("Do you live in a metropolitan county?", metstats)
+	st.write('<style>div.row-widget.stRadio > div{flex-direction:row;}</style>', unsafe_allow_html=True)
 	new_entry.iloc[0]._METSTAT = metstats.index(metstat) + 1
 
 	urbstat = st.radio("Do you live in a urban or rural county?", urbstats)
@@ -449,25 +456,6 @@ def show_predict_page():
 		# calculate and show
 		to_predict = process(new_entry, X)
 		input_shape = [to_predict.shape[1]]
-		
-		m = 2
-		model = keras.Sequential([
-				layers.BatchNormalization(input_shape=input_shape),
-				# the hidden ReLU layers
-				layers.Dense(units=64 * m, activation='relu'),  # , input_shape=input_shape),
-				layers.BatchNormalization(),
-				layers.Dropout(rate=0.3),  # apply 30% dropout to the next layer
-				layers.Dense(units=64 * m, activation='relu'),
-				layers.BatchNormalization(),
-				layers.Dropout(rate=0.3),  # apply 30% dropout to the next layer
-				layers.Dense(units=64 * m, activation='relu'),
-				layers.BatchNormalization(),
-				layers.Dropout(rate=0.3),  # apply 30% dropout to the next layer
-				# the linear output layer
-				# layers.Dense(units=1),
-				layers.Dense(1, activation='sigmoid')
-		])
-		
 		
 		model = load_model(model_name)
 		
