@@ -262,7 +262,7 @@ if __name__ ==  "__main__":
 	X.isnull().values.any()
 	
 	# os.getcwd()
-	# X.to_hdf(df_name, "X")
+	X.to_hdf(df_name, "X")
 	# X2 = pd.read_hdf(df_name)
 	# X2.shape
 	# X2.head()
