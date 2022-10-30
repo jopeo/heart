@@ -5,6 +5,7 @@
 import tensorflow as tf
 import pandas as pd
 import numpy as np
+import os
 from sklearn.model_selection import train_test_split
 from sklearn.compose import make_column_transformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
@@ -24,7 +25,8 @@ print(tf.reduce_sum(tf.random.normal([1000, 1000])))
 #   the SAS Transport Format is used here:
 
 full_file = "LLCP2020.XPT"
-model_name = "model7.h5"
+df_name = "./source/" + "df.h5"
+model_name = "model8.h5"
 fig_name = model_name.split('.')[0] + '_plots'
 
 
@@ -34,6 +36,7 @@ def load_data(name):
 	return data_1, data_2
 
 
+# todo: check state entries compared with model numbers
 def clean_data(data):
 	data = data.dropna(subset=["_MICHD"], axis=0)
 	data = data[data.DISPCODE != 1200]  # == 1200    final disposition (1100 completed or not 1200)
@@ -246,13 +249,24 @@ if __name__ ==  "__main__":
 	y.describe()
 	X = X.drop(['_MICHD'], axis=1)
 	
+	X.shape
+	X.head()
+	
 	X_mode = X.mode()
 	X_mode
 	X_mode.shape
 	imp = SimpleImputer(missing_values=np.nan, strategy='most_frequent')
 	X = pd.DataFrame(imp.fit_transform(X), columns=X.columns)
+	X.shape
 	X.head()
 	X.isnull().values.any()
+	
+	# os.getcwd()
+	# X.to_hdf(df_name, "X")
+	# X2 = pd.read_hdf(df_name)
+	# X2.shape
+	# X2.head()
+
 
 	train_X, val_X, train_y, val_y = train_test_split(X, y, random_state=1)
 	# input_shape = [train_X.shape[1]]
