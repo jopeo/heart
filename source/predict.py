@@ -1,12 +1,19 @@
 #!/usr/bin/env python
 
 import pandas as pd
+import numpy
 import streamlit as st
+import tensorflow as tf
+from tensorflow import keras
+from keras import layers
+from keras.models import load_model
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
 st.set_page_config(page_title="Heart Disease Prediction",
                    page_icon='../Images/heart.png')
 
 df_name = "df.h5"
+model_name = "model8.h5"
 
 
 states = (
@@ -199,12 +206,96 @@ chldcnts = ("No children",
             "Four children in household",
             "Five or more children in household")
 
+features_cat = ['_STATE',       # geographical state]
+                'SEXVAR',       # Sex of Respondent 1 MALE, 2 FEMALE
+                '_RFHLTH',      # Health Status  1 Good or Better Health 2 Fair or Poor Health
+                                    # 9 Don’t know/ Not Sure Or Refused/ Missing
+                '_PHYS14D',     # Healthy Days 1 Zero days when physical health not good
+                                    #  2 1-13 days when physical health not good
+                                    # 3 14+ days when physical health not good
+                                    # 9 Don’t know/ Refused/Missing
+                '_MENT14D',     # SAME AS PHYS
+                '_HCVU651',     # Health Care Access  1 Have health care coverage 2 Do not have health care coverage 9 Don’t know/ Not Sure, Refused or Missing
+                '_TOTINDA',     # Exercise 1 Had physical activity or exercise 2 No physical activity or exercise in last 30 days 9 Don’t know/ Refused/ Missing
+                '_ASTHMS1',     # asthma? 1 current 2 former 3 never
+                '_DRDXAR2',     # ever arthritis? 1 Diagnosed with arthritis 2 Not diagnosed with arthritis
+                '_EXTETH3',     # ever had teeth extracted? 1 no 2 yes 9 dont know
+                '_DENVST3',     # dentist in past year? 1 yes 2 no 9 don't know
+                '_RACE',        # 1 White only, nonHispanic, 2 Black only, nonHispanic, 3 American Indian or Alaskan Native only,Non-Hispanic 4 Asian only, nonHispanic  5 Native Hawaiian or other Pacific Islander only, Non-Hispanic 6 Other race only, nonHispanic 7 Multiracial, nonHispanic 8 Hispanic Respondents who reported they are of Hispanic origin. ( _HISPANC=1) 9 Don’t know/ Not sure/ Refused
+                '_EDUCAG',      # level of education completed 1 no grad high school, 2 high school, 3 some college, 4 graduated college, 9 don't know
+                '_INCOMG',      # Income categories (1 Less than $15,000, 2 $15,000 to less than $25,000, 3 $25,000 to less than $35,000, 4 $35,000 to less than $50,000, 5 $50,000 or more, 9 dont know
+                '_METSTAT',     # metropolitan status 1 yes, 2 no
+                '_URBSTAT',     # urban rural status 1 urban 2 rural
+                '_SMOKER3',     # four-level smoker status: everyday smoker, someday smoker, former smoker, non-smoker
+                'DRNKANY5',     # had at least one drink of alcohol in the past 30 days
+                '_RFBING5',     # binge drinkers (males having five or more drinks on one occasion, females having four or more drinks on one occasion 1 no 2 yes
+                '_RFDRHV7',     # heavy drinkers 14 drinks per week or less, or Female Respondents who reported having 7 drinks per week or less 1 no 2 yes
+                '_PNEUMO3',     # ever had a pneumonia vaccination
+                '_RFSEAT3',     # always wear seat belts 1 yes 2 no
+                '_DRNKDRV',     # drinking and driving 1 yes 2 no
+                '_RFMAM22',     # mammogram in the past two years 1 yes 2 no
+                '_FLSHOT7',     # flu shot within the past year 1 yes 2 no
+                '_RFPAP35',     # Pap test in the past three years 1 yes 2 no
+                '_RFPSA23',     # PSA test in the past 2 years
+                '_CRCREC1',     # fully met the USPSTF recommendations for rectal cancer screening 1 yes, 2 yes but not within time, 3 never
+                '_AIDTST4',     # ever been tested for HIV
+                'PERSDOC2',     # personal doctor yes = 1, more = 2, no = 3 Do you have one person you think of as your personal doctor or health care provider? (If ´No´ ask ´Is there more than one or is there no person who you think of as your personal doctor or health care provider?´.)
+                'CHCSCNCR',     # (Ever told) (you had) skin cancer? 1 yes 2 no
+                'CHCOCNCR',     # (Ever told) (you had) any other types of cancer? 1 yes 2 no
+                'CHCCOPD2',     #  (Ever told) (you had) chronic obstructive pulmonary disease, C.O.P.D., emphysema or chronic bronchitis? 1 yes 2 no
+                'QSTLANG',     # 1 english 2 spanish
+                'ADDEPEV3',     # (Ever told) (you had) a depressive disorder (including depression, major depression, dysthymia, or minor depression)? 1 yes 2 no
+                'CHCKDNY2',     # Not including kidney stones, bladder infection or incontinence, were you ever told you had kidney disease?  1 yes 2 no
+                'DIABETE4',     # (Ever told) (you had) diabetes? 1 yes 2 no
+                'MARITAL'      #  (marital status) 1 married 2 divorced 3 widowed 4 separated 5 never married 6 member of unmarried couple
+                ]
+
+features_num = ['_AGE80',       #  imputed age value collapsed above 80
+                'HTM4',  # height in centimeters
+                'WTKG3',  # weight in kilograms, implied 2 decimal places
+                '_BMI5',  # body mass index
+                '_CHLDCNT',  # number of children in household.
+                '_DRNKWK1',  # total number of alcoholic beverages consumed per week.
+                'SLEPTIM1',  # how many hours of sleep do you get in a 24-hour period?
+                ]
+
+
+def process(prediction_data, X):
+	# rows_to_keep = q.shape[0]
+	rows_to_keep = prediction_data.shape[0]
+	
+	# inputs = pd.concat([X, z])
+	inputs = pd.concat([X, prediction_data])
+	# inputs.shape
+	
+	# todo: replace NaNs with most frequent (mode) (X_mode)
+	
+	processed = pd.DataFrame()
+	
+	for cat in features_cat:
+		# print(cat)
+		one_hots = OneHotEncoder()
+		cat_encoded = one_hots.fit_transform(inputs[[cat]])
+		cat_encoded_names = one_hots.get_feature_names_out([cat])
+		cat_encoded = pd.DataFrame(cat_encoded.todense(), columns=cat_encoded_names)
+		# print(cat_encoded_names)
+		# print(len(cat_encoded_names))
+		processed = pd.concat([processed, cat_encoded], axis=1)
+	
+	for num in features_num:
+		num_scaled = StandardScaler().fit_transform(inputs[[num]])
+		num_scaled = pd.DataFrame(num_scaled, columns=[num])
+		processed = pd.concat([processed, num_scaled], axis=1)
+	
+	to_model = processed.iloc[processed.shape[0] - rows_to_keep:].copy()
+	# to_model.shape
+	
+	return to_model
 
 
 def show_predict_page():
 	
 	X = pd.read_hdf(df_name)
-	
 	new_entry = pd.DataFrame(0, index=range(1), columns=X.columns)
 	
 	st.title("Heart Disease Prediction")
@@ -321,28 +412,73 @@ def show_predict_page():
 	chcocncr = st.radio("Have you ever been told that you had any other types of cancer?", chcocncrs)
 	new_entry.iloc[0].CHCOCNCR = chcocncrs.index(chcocncr) + 1
 	
-	st.write(f"variable: {chcocncr} \n"
-	         f"df: {new_entry.iloc[0].CHCOCNCR}")
+	chccopd2 = st.radio("Have you ever been told that you had chronic obstructive pulmonary disease, C.O.P.D., emphysema or chronic bronchitis?", chccopd2s)
+	new_entry.iloc[0].CHCCOPD2 = chccopd2s.index(chccopd2) + 1
+	
+	qstlang = st.radio("What language are you using to complete this questionnaire?", qstlangs)
+	new_entry.iloc[0].QSTLANG = qstlangs.index(qstlang) + 1
+	
+	addepev3 = st.radio("Have you ever been told that you had a depressive disorder (including depression, major depression, dysthymia, or minor depression)?", addepev3s)
+	new_entry.iloc[0].ADDEPEV3 = addepev3s.index(addepev3) + 1
+	
+	chckdny2 = st.radio("Not including kidney stones, bladder infection or incontinence, were you ever told you had kidney disease?", chckdny2s)
+	new_entry.iloc[0].CHCKDNY2 =  chckdny2s.index(chckdny2) + 1
+	
+	diabete4 = st.radio("Have you ever been told that you have diabetes?", diabete4s)
+	new_entry.iloc[0].DIABETE4 = diabete4s.index(diabete4) + 1
+	
+	marital = st.radio("What is your marital status?", maritals)
+	new_entry.iloc[0].MARITAL = maritals.index(marital) + 1
+	
+	htm4 = st.slider("What is your height in centimeters (5 feet 5 inches is about 165 centimeters)?", 100, 210)
+	wtkg3 = st.slider("What is your weight in kilograms (150 pounds is about 68 kilograms)?", 35, 160)
+	bmi = wtkg3 / (htm4/100*htm4/100) * 100
+	new_entry.iloc[0]._BMI5 = int(bmi)
+	
+	chldcnt = st.radio("How many children do you have in your household?", chldcnts)
+	new_entry.iloc[0]._CHLDCNT = chldcnts.index(chldcnt) + 1
+	
+	new_entry.iloc[0]._DRNKWK1 = st.slider("How many alcholic drinks do you haver per week in total?", 0, 200)
+	
+	new_entry.iloc[0].SLEPTIM1 = st.slider("How many hours of sleep do you get in a 24-hour period?", 0, 24)
 	
 	
-	# new_entry.iloc[0].CHCCOPD2 = st.radio("Have you ever been told that you had chronic obstructive pulmonary disease, C.O.P.D.,"
-	#                     " emphysema or chronic bronchitis?", chccopd2s)
-	# new_entry.iloc[0].QSTLANG = st.radio("What language are you using to complete this questionnaire?", qstlangs)
-	# new_entry.iloc[0].ADDEPEV3 = st.radio("Have you ever been told that you had a depressive disorder (including depression, major "
-	#                     "depression, dysthymia, or minor depression)?", addepev3s)
-	# new_entry.iloc[0].CHCKDNY2 = st.radio("Not including kidney stones, bladder infection or incontinence, were you ever told you had "
-	#                     "kidney disease?", chckdny2s)
-	# new_entry.iloc[0].DIABETE4 = st.radio("Have you ever been told that you have diabetes?", diabete4s)
-	# new_entry.iloc[0].MARITAL = st.radio("What is your marital status?", maritals)
-
-	# HTM4 = st.slider("What is your height in centimeters (5 feet 5 inches is about 165 centimeters)?", 100, 210)
-	# WTKG3 = st.slider("What is your weight in kilograms (150 pounds is about 68 kilograms)?", 35, 160)
-	# new_entry.iloc[0]._BMI5 = WTKG3 / (HTM4 ^ 2)
-	# new_entry.iloc[0]._CHLDCNT = st.radio("How many children do you have in your household?", chldcnts)
-	# new_entry.iloc[0]._DRNKWK1 = st.slider("How many alcholic drinks do you haver per week in total?", 0, 200)
-	# new_entry.iloc[0].SLEPTIM1 = st.slider("How many hours of sleep do you get in a 24-hour period?", 0, 24)
+	clicked = st.button("Calculate Probability of Heart Disease")
 	
-	st.button("Calculate Probability of Heart Disease")
+	if clicked:
+		# calculate and show
+		to_predict = process(new_entry, X)
+		input_shape = [to_predict.shape[1]]
+		
+		m = 2
+		model = keras.Sequential([
+				layers.BatchNormalization(input_shape=input_shape),
+				# the hidden ReLU layers
+				layers.Dense(units=64 * m, activation='relu'),  # , input_shape=input_shape),
+				layers.BatchNormalization(),
+				layers.Dropout(rate=0.3),  # apply 30% dropout to the next layer
+				layers.Dense(units=64 * m, activation='relu'),
+				layers.BatchNormalization(),
+				layers.Dropout(rate=0.3),  # apply 30% dropout to the next layer
+				layers.Dense(units=64 * m, activation='relu'),
+				layers.BatchNormalization(),
+				layers.Dropout(rate=0.3),  # apply 30% dropout to the next layer
+				# the linear output layer
+				# layers.Dense(units=1),
+				layers.Dense(1, activation='sigmoid')
+		])
+		
+		
+		model = load_model(model_name)
+		
+		y_new = model.predict(to_predict)
+		
+		# st.write(f"Your calculated probability of heart disease is: {100*clicked:.2f}% \n")
+		# st.subheader(f"Your calculated probability of heart disease is: {y_new}% \n {type(y_new)}")
+		st.subheader(f"Your calculated probability of heart disease is:")
+		st.header(f" {100*float(y_new[[0]]):.2f}% \n")
+		clicked = False
+		
 	
 	return
 
