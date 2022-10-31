@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, accuracy_score, confusion_matrix, classification_report
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
-import joblib
+from joblib import dump, load
 
 # import matplotlib as mpl
 # import matplotlib.pyplot as plt
@@ -285,8 +285,8 @@ if __name__ ==  "__main__":
 	forest_model = RandomForestClassifier(random_state=1, n_estimators=156)
 	forest_model.fit(X_preprocessed, y)
 	
-	joblib.dump(forest_model, "./source/" + model_name, compress=3)
-	loaded_model = joblib.load("./source/" + model_name)
+	dump(forest_model, "./source/" + model_name, compress=3)
+	loaded_model = load("./source/" + model_name)
 	
 	predictions = forest_model.predict_proba(val_X_preprocessed)
 	predictions

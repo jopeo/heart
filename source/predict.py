@@ -4,7 +4,7 @@ import streamlit as st
 from pandas import DataFrame, concat, read_hdf
 import numpy as np
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
-import joblib
+from joblib import load
 
 st.set_page_config(page_title="Heart Disease Prediction",
                    page_icon='./res/heart.png')
@@ -458,7 +458,7 @@ def show_predict_page():
 		to_predict = process(new_entry, X)
 		input_shape = [to_predict.shape[1]]
 		
-		model = joblib.load(model_name)
+		model = load(model_name)
 		
 		y_new = model.predict_proba(to_predict)
 		
