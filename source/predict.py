@@ -19,7 +19,7 @@ st.markdown(hide_menu_style, unsafe_allow_html=True)
 st.image('./res/heart_section.gif')
 
 df_name = "df.h5"
-model_name = "model10.joblib"
+model_name = "model11.joblib"
 
 
 states = (
@@ -454,12 +454,12 @@ def show_predict_page():
 	
 	if clicked:
 		# calculate and show
-		to_predict = process(new_entry, X)
-		input_shape = [to_predict.shape[1]]
+		# to_predict = process(new_entry, X)
+		# input_shape = [to_predict.shape[1]]
 		
 		model = load(model_name)
 		
-		y_new = model.predict_proba(to_predict)
+		y_new = model.predict_proba(new_entry.iloc[0])
 		
 		# st.write(f"Your calculated probability of heart disease is: {100*clicked:.2f}% \n")
 		# st.subheader(f"Your calculated probability of heart disease is: {y_new}% \n {type(y_new)}")

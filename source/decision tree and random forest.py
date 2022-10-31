@@ -31,7 +31,7 @@ from joblib import dump, load
 # filename = "heart_2020_cleaned.csv"
 full_file = "LLCP2020.XPT"
 df_name = "df.h5"
-model_name = "model10.joblib"
+model_name = "model11.joblib"
 
 
 features_cat = ['_STATE',       # geographical state]
@@ -239,7 +239,8 @@ if __name__ ==  "__main__":
 	X.isnull().values.any()
 	
 	# X.to_hdf(df_name, "X")  # to save cleaned data
-	# X = pd.read_hdf("./source/" + df_name)  # to read cleaned data
+	X = pd.read_hdf("./source/" + df_name)  # to read cleaned data
+	X.shape
 	
 	train_X, val_X, train_y, val_y = train_test_split(X, y, random_state=1)
 	train_X.shape
@@ -282,8 +283,8 @@ if __name__ ==  "__main__":
 	# best_tree_size
 	
 	# now, a random forest model
-	forest_model = RandomForestClassifier(random_state=1, n_estimators=156)
-	forest_model.fit(X_preprocessed, y)
+	forest_model = RandomForestClassifier(random_state=1, n_estimators=45)
+	forest_model.fit(X, y)
 	
 	dump(forest_model, "./source/" + model_name, compress=3)
 	loaded_model = load("./source/" + model_name)
