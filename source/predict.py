@@ -2,7 +2,6 @@
 
 import streamlit as st
 from pandas import DataFrame, concat, read_hdf
-import numpy as np
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from joblib import load
 
