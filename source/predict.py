@@ -2,8 +2,9 @@
 
 import streamlit as st
 from pandas import DataFrame, concat, read_hdf
-from keras.models import load_model
+import numpy as np
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
+import joblib
 
 st.set_page_config(page_title="Heart Disease Prediction",
                    page_icon='./res/heart.png')
@@ -19,7 +20,7 @@ st.markdown(hide_menu_style, unsafe_allow_html=True)
 st.image('./res/heart_section.gif')
 
 df_name = "df.h5"
-model_name = "model8.h5"
+model_name = "model10.joblib"
 
 
 states = (
@@ -305,7 +306,7 @@ def show_predict_page():
 	new_entry = DataFrame(0, index=range(1), columns=X.columns)
 	
 	st.title("Heart Disease Prediction")
-	st.subheader("A deep neural network for predicting heart disease")
+	st.subheader("A machine learning algorithm for predicting heart disease")
 	
 	state = st.selectbox("In which state do you reside?", states)
 	# todo: check state entries compared with model numbers
@@ -457,14 +458,15 @@ def show_predict_page():
 		to_predict = process(new_entry, X)
 		input_shape = [to_predict.shape[1]]
 		
-		model = load_model(model_name)
+		model = joblib.load(model_name)
 		
-		y_new = model.predict(to_predict)
+		y_new = model.predict_proba(to_predict)
 		
 		# st.write(f"Your calculated probability of heart disease is: {100*clicked:.2f}% \n")
 		# st.subheader(f"Your calculated probability of heart disease is: {y_new}% \n {type(y_new)}")
 		st.subheader(f"Your calculated probability of heart disease is:")
-		st.header(f" {100*float(y_new[[0]]):.2f}% \n")
+		st.header(f" {100*y_new[0][1]:.2f}%")
+		# st.header(f" {100*float(y_new[[0]]):.2f}% \n")
 		clicked = False
 		
 	
