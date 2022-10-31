@@ -30,7 +30,7 @@ from joblib import dump, load
 
 # filename = "heart_2020_cleaned.csv"
 full_file = "LLCP2020.XPT"
-df_name = "df.h5"
+df_name = "raw.h5"
 model_name = "model11.joblib"
 
 
@@ -211,6 +211,9 @@ def process(prediction_data):
 
 if __name__ ==  "__main__":
 	data_o, data = load_data(full_file)
+	data.shape
+	data.to_hdf(df_name, "X", complevel=3)  # to save cleaned data
+	
 	data = clean_data(data)
 	
 	data.shape
