@@ -10,6 +10,10 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
 from joblib import dump, load
 
+import matplotlib.pyplot as plt
+import seaborn as sns
+from imblearn.under_sampling import ClusterCentroids, RandomUnderSampler, NearMiss
+
 # import matplotlib as mpl
 # import matplotlib.pyplot as plt
 # import seaborn as sns
@@ -29,9 +33,10 @@ from joblib import dump, load
 #   the SAS Transport Format is used here:
 
 # filename = "heart_2020_cleaned.csv"
-full_file = "LLCP2020.XPT"
-df_name = "raw.h5"
-model_name = "model11.joblib"
+# full_file = "LLCP2020.XPT"
+raw_file = "raw.h5"
+cleaned_file = "heart_cleaned.h5"
+model_name = "heart_model_1.joblib"
 
 
 features_cat = ['_STATE',       # geographical state]
