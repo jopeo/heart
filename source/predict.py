@@ -459,7 +459,7 @@ def show_predict_page():
 		
 		model = load(model_name)
 		
-		y_new = model.predict_proba(new_entry.iloc[0])
+		y_new = model.predict_proba(new_entry)
 		
 		# st.write(f"Your calculated probability of heart disease is: {100*clicked:.2f}% \n")
 		# st.subheader(f"Your calculated probability of heart disease is: {y_new}% \n {type(y_new)}")
