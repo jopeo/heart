@@ -9,6 +9,7 @@ from sklearn.metrics import mean_absolute_error, accuracy_score, confusion_matri
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
 from joblib import dump, load
+from sklearn.feature_selection import RFECV
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -75,7 +76,7 @@ features_num = ['_AGE80',       #  imputed age value collapsed above 80
 
 
 def clean_data(data):
-	data = data.dropna(subset=["_MICHD"], axis=0)
+	data = data.dropna(subset=[outcome], axis=0)
 	data = data[data.DISPCODE != 1200]  # == 1200    final disposition (1100 completed or not 1200)
 	data._RFHLTH = data._RFHLTH.replace(9, int(data._RFHLTH.mode()))
 	data._PHYS14D = data._PHYS14D.replace(9, int(data._PHYS14D.mode()))
@@ -198,7 +199,38 @@ def process(prediction_data):
 if __name__ ==  "__main__":
 	# data_o, data = load_data(full_file)
 	data = pd.read_hdf("./source/" + raw_file)  # to read cleaned data
+	data = data.dropna(subset=[outcome], axis=0)
+	data = data[data.DISPCODE != 1200]  # == 1200    final disposition (1100 completed or not 1200)
+	
 	data.shape
+	
+	y = abs(data._MICHD - 2)
+	X = data.copy()
+	X.shape
+	X.columns.values
+	
+	headers = X.columns.values
+	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+	
+	empty_train_columns = []
+	for col in X_train.columns.values:
+		# all the values for this feature are null
+		if sum(X_train[col].isnull()) == X_train.shape[0]:
+			empty_train_columns.append(col)
+	print(empty_train_columns)
+	
+	X = X.drop(['TOLDCFS', 'HAVECFS', 'WORKCFS'], axis=1)
+	X.shape
+	
+	imp = SimpleImputer(missing_values=np.nan, strategy='most_frequent')
+	X = pd.DataFrame(imp.fit_transform(X), columns=X.columns)
+	X.isnull().values.any()
+	X.to_hdf("./source/full_X_imputed_before_RFE.h5", "X", complevel=2)
+
+	
+	selector = RFECV(RandomForestClassifier(), min_features_to_select=30, cv=3, verbose=2, n_jobs=-1)
+	selector.fit(X, y)
+	
 	
 	# data.to_hdf(df_name, "X", complevel=3)  # to save cleaned data
 	
@@ -212,7 +244,6 @@ if __name__ ==  "__main__":
 	X = data.drop([i for i in data.columns if i in data.columns and i not in features_cat and i not in features_num and i not in [outcome]], axis=1)
 	X.shape
 	
-	y = abs(data._MICHD - 2)
 	y.head()
 	y.describe()
 	X = X.drop([outcome], axis=1)
