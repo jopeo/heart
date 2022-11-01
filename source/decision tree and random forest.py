@@ -14,30 +14,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from imblearn.under_sampling import ClusterCentroids, RandomUnderSampler, NearMiss
 
-# import matplotlib as mpl
-# import matplotlib.pyplot as plt
-# import seaborn as sns
-# import scipy.stats as st
-# from scipy.stats import chi2_contingency
-#
-# import statsmodels.api
-#
-# from sklearn.model_selection import train_test_split, GridSearchCV
-# from sklearn.preprocessing import LabelEncoder, StandardScaler
-# from sklearn.feature_selection import SelectKBest, f_classif
-#
-# from imblearn.under_sampling import RandomUnderSampler
-# from imblearn.metrics import classification_report_imbalanced
-
-#  todo: visit https://www.cdc.gov/brfss/annual_data/annual_2020.html to download the data,
-#   the SAS Transport Format is used here:
-
-# filename = "heart_2020_cleaned.csv"
-# full_file = "LLCP2020.XPT"
 raw_file = "raw.h5"
 cleaned_file = "heart_cleaned.h5"
-model_name = "heart_model_1.joblib"
-
+model_name = "heart_model_RUS.joblib"
+outcome = "_MICHD"  # have ever reported having coronary heart disease (CHD) or myocardial infarction (MI)
+random_state = 1
 
 features_cat = ['_STATE',       # geographical state]
                 'SEXVAR',       # Sex of Respondent 1 MALE, 2 FEMALE
@@ -215,9 +196,11 @@ def process(prediction_data):
 
 
 if __name__ ==  "__main__":
-	data_o, data = load_data(full_file)
+	# data_o, data = load_data(full_file)
+	data = pd.read_hdf("./source/" + raw_file)  # to read cleaned data
 	data.shape
-	data.to_hdf(df_name, "X", complevel=3)  # to save cleaned data
+	
+	# data.to_hdf(df_name, "X", complevel=3)  # to save cleaned data
 	
 	data = clean_data(data)
 	
@@ -226,13 +209,13 @@ if __name__ ==  "__main__":
 	# data.head()
 	# data.columns
 	
-	X = data.drop([i for i in data.columns if i in data.columns and i not in features_cat and i not in features_num and i not in ['_MICHD']], axis=1)
+	X = data.drop([i for i in data.columns if i in data.columns and i not in features_cat and i not in features_num and i not in [outcome]], axis=1)
 	X.shape
 	
 	y = abs(data._MICHD - 2)
 	y.head()
 	y.describe()
-	X = X.drop(['_MICHD'], axis=1)
+	X = X.drop([outcome], axis=1)
 	
 	X.shape
 	X.head()
@@ -247,17 +230,84 @@ if __name__ ==  "__main__":
 	X.isnull().values.any()
 	
 	# X.to_hdf(df_name, "X")  # to save cleaned data
-	X = pd.read_hdf("./source/" + df_name)  # to read cleaned data
+	# X = pd.read_hdf("./source/" + df_name)  # to read cleaned data
 	X.shape
 	
-	train_X, val_X, train_y, val_y = train_test_split(X, y, random_state=1)
+	# rus = RandomUnderSampler(random_state=random_state)
+	# X_rus, y_rus = rus.fit_resample(X, y)
+	# y_rus.value_counts()
+	# X_rus.shape
+	# y.value_counts()
+	
+	# cc = ClusterCentroids(random_state=random_state)
+	# X_cc, y_cc = cc.fit_resample(X, y)
+	# y_cc.value_counts()
+	# X_cc.shape
+	#
+	# nm = NearMiss(version=3)
+	# X_nm, y_nm = nm.fit_resample(X, y)
+	# y_nm.value_counts()
+	# X_nm.shape
+	
+	train_X, val_X, train_y, val_y = train_test_split(X_rus, y_rus,  # X, y,
+	                                                  random_state=1)  #, stratify=y)
 	train_X.shape
 	
-	X_cats = train_X.drop([i for i in X.columns if i in X.columns and i not in features_cat], axis=1)
-	X_nums = train_X.drop([i for i in X.columns if i in X.columns and i not in features_num], axis=1)
-	X_cats.shape
-	X_nums.shape
-	X_cats.head()
+	rf = RandomForestClassifier(random_state=random_state)
+	rf.fit(X_rus, y_rus)  # X_nm, y_nm)  # train_X, train_y)    # X, y)  #
+	
+	dump(rf, "./source/ " + model_name, compress=3)
+	
+	y_predictions = rf.predict(val_X)
+	
+	accuracy_score(val_y, y_predictions)  # 0.9119811562541953
+	
+	matrix = confusion_matrix(val_y, y_predictions)
+	matrix
+	matrix = matrix.astype('float') / matrix.sum(axis=1)[:, np.newaxis]
+	val_X.value_counts()
+	val_y.value_counts()
+	
+	plt.figure(figsize=(12, 9))
+	sns.set(font_scale=1.4)
+	sns.heatmap(matrix, annot=True, annot_kws={
+			'size': 10},
+	            cmap=plt.cm.YlGnBu, linewidths=0.2)  # plt.cm.Greens
+	class_names = ["No stroke", "Stroke"]
+	tick_marks = np.arange(len(class_names))
+	tick_marks2 = tick_marks + 0.5
+	plt.xticks(tick_marks, class_names, rotation=25)
+	plt.yticks(tick_marks2, class_names, rotation=0)
+	plt.xlabel('Predicted label')
+	plt.ylabel('True label')
+	plt.title('Confusion Matrix for Random Forest Model - Random Under Sampling')
+	plt.show()
+	
+	print(classification_report(val_y, y_predictions))
+	
+	train_scoreNum, test_scoreNum = validation_curve(
+			RandomForestClassifier(),
+			X=train_X, y=train_y,
+			param_name='n_estimators',
+			param_range=n_estimators,
+			cv=3,
+			verbose=2)
+	
+	train_mean = np.mean(train_scoreNum, axis=1)
+	test_mean = np.mean(test_scoreNum, axis=1)
+	
+	plt.plot(n_estimators, train_mean,
+	         marker='o', markersize=5,
+	         color='blue', label='Training Accuracy')
+	plt.plot(n_estimators, test_mean,
+	         marker='o', markersize=5,
+	         color='green', label='Validation Accuracy')
+	
+	# X_cats = train_X.drop([i for i in X.columns if i in X.columns and i not in features_cat], axis=1)
+	# X_nums = train_X.drop([i for i in X.columns if i in X.columns and i not in features_num], axis=1)
+	# X_cats.shape
+	# X_nums.shape
+	# X_cats.head()
 	
 	# train_X_preprocessed = preprocess(train_X)
 	# val_X_preprocessed = preprocess(val_X)
@@ -265,10 +315,10 @@ if __name__ ==  "__main__":
 	# [val_X_preprocessed.shape[1]]
 	# input_shape
 	
-	X_preprocessed = preprocess(X)
-	X_preprocessed.shape
-	input_shape = [X_preprocessed.shape[1]]
-	input_shape
+	# X_preprocessed = preprocess(X)
+	# X_preprocessed.shape
+	# input_shape = [X_preprocessed.shape[1]]
+	# input_shape
 	
 	# first, a decicision tree model
 	# model = DecisionTreeRegressor(random_state=1)
@@ -306,102 +356,6 @@ if __name__ ==  "__main__":
 	accuracy_score(val_y, preds)
 	
 	print(mean_absolute_error(val_y, predictions))
-	
-	
-	
-	
-	# categoricals = data.select_dtypes(include=[np.object])
-	# categoricals.columns
-	# numericals = data.select_dtypes(include=[np.number])
-	# numericals.columns
-	#
-	# sns.pairplot(data, hue="HeartDisease")
-	# sns.countplot(x="HeartDisease", data=data)
-	#
-	# data['HeartDisease'] = data['HeartDisease'].apply(lambda x: 0 if x == 'No' else 1)
-	#
-	# plt.figure(figsize=(15, 8))
-	# ax = sns.kdeplot(data["BMI"][data.HeartDisease == 1], shade=True)  # color="darkturquoise",
-	# sns.kdeplot(data["BMI"][data.HeartDisease == 0], shade=True)  # color="lightcoral",
-	# plt.legend(['HeartDisease', 'non-HeartDisease'])
-	# plt.title('Density Plot of HeartDisease for BMI')
-	# ax.set(xlabel='BMI')
-	# plt.xlim(10, 50)
-	# plt.show()
-	#
-	# plt.figure(figsize=(15, 8))
-	# ax = sns.kdeplot(data["SleepTime"][data.HeartDisease == 1], shade=True)
-	# sns.kdeplot(data["SleepTime"][data.HeartDisease == 0], shade=True)
-	# plt.legend(['HeartDisease', 'non-HeartDisease'])
-	# plt.title('Density Plot of HeartDisease for SleepTime')
-	# ax.set(xlabel='SleepTime')
-	# plt.xlim(2, 15)
-	# plt.show()
-	#
-	# plt.figure(figsize=(5, 3))
-	# sns.barplot('AgeCategory', 'HeartDisease', data=data, )
-	# plt.xticks(fontsize=12, rotation=90)
-	# plt.yticks(fontsize=12)
-	# plt.title('Density Plot of HeartDisease for Age')
-	# plt.xlabel('AgeCategory', fontsize=11)
-	# plt.ylabel('HeartDisease', fontsize=11)
-	# plt.show()
-	#
-	# n = 1
-	# plt.figure(figsize=(15, 25))
-	# for feature in numericals.columns:
-	# 	plt.subplot(6, 3, n)
-	# 	sns.displot(data[feature], kde=True)
-	# 	plt.xlabel(feature)
-	# 	plt.ylabel("Count")
-	# 	n += 1
-	#
-	# for column in data.columns:
-	# 	if data[column].dtypes == "object":
-	# 		data[column] = data[column].fillna(data[column].mode().iloc[0])
-	# 		uniques = len(data[column].unique())
-	#
-	# n = 1
-	# plt.figure(figsize=(15, 25))
-	# for feature in categoricals.columns:
-	# 	plt.subplot(6, 3, n)
-	# 	sns.countplot(x=feature, hue="HeartDisease", data=data)
-	# 	n += 1
-	#
-	# n = 1
-	# plt.figure(figsize=(15, 25))
-	# for col in categoricals:
-	# 	plt.subplot(6, 3, n)
-	# 	sns.countplot(x='Sex', hue=categoricals[col], data=data)
-	# 	n += 1
-	#
-	# n = 1
-	# plt.figure(figsize=(15, 25))
-	# for feature in numericals:
-	# 	plt.subplot(6, 3, n)
-	# 	sns.boxplot(y=data[feature], x=data['AlcoholDrinking'])
-	# 	n += 1
-	#
-	# n = 1
-	# plt.figure(figsize=(15, 25))
-	# for feature in numericals:
-	# 	plt.subplot(6, 3, n)
-	# 	sns.boxplot(y=data[feature], x=data['Diabetic'])
-	# 	n += 1
-	#
-	# n = 1
-	# plt.figure(figsize=(15, 25))
-	# for feature in numericals:
-	# 	plt.subplot(6, 3, n)
-	# 	sns.boxplot(y=data[feature], x=data['PhysicalActivity'])
-	# 	n += 1
-	#
-	# n = 1
-	# plt.figure(figsize=(15, 25))
-	# for feature in numericals:
-	# 	plt.subplot(6, 3, n)
-	# 	sns.boxplot(y=data[feature], x=data['Race'])
-	# 	n += 1
 	
 	
 	
