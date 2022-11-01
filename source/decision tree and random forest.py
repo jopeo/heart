@@ -16,7 +16,7 @@ from imblearn.under_sampling import ClusterCentroids, RandomUnderSampler, NearMi
 
 raw_file = "raw.h5"
 cleaned_file = "heart_cleaned.h5"
-model_name = "heart_model_NM-1.joblib"
+model_name = "heart_model_NM-3.joblib"
 outcome = "_MICHD"  # have ever reported having coronary heart disease (CHD) or myocardial infarction (MI)
 random_state = 1
 
@@ -74,20 +74,6 @@ features_num = ['_AGE80',       #  imputed age value collapsed above 80
                 ]
 
 
-def load_data(name):
-	data_1 = pd.read_sas('./source/' + name)
-	data_2 = data_1.copy()
-	return data_1, data_2
-
-
-def get_mae(max_leaf_nodes, train_X, val_X, train_y, val_y):
-    model = DecisionTreeRegressor(max_leaf_nodes=max_leaf_nodes, random_state=0)
-    model.fit(train_X, train_y)
-    preds_val = model.predict(val_X)
-    mae = mean_absolute_error(val_y, preds_val)
-    return mae
-
-
 def clean_data(data):
 	data = data.dropna(subset=["_MICHD"], axis=0)
 	data = data[data.DISPCODE != 1200]  # == 1200    final disposition (1100 completed or not 1200)
@@ -139,6 +125,20 @@ def clean_data(data):
 	data.MARITAL = data.MARITAL.replace(9, int(data.MARITAL.mode()))
 	data = data[data.QSTLANG < 3]  # responded english or spanish to language (only 1 respondent said other)
 	return data
+
+
+def load_data(name):
+	data_1 = pd.read_sas('./source/' + name)
+	data_2 = data_1.copy()
+	return data_1, data_2
+
+
+def get_mae(max_leaf_nodes, train_X, val_X, train_y, val_y):
+    model = DecisionTreeRegressor(max_leaf_nodes=max_leaf_nodes, random_state=0)
+    model.fit(train_X, train_y)
+    preds_val = model.predict(val_X)
+    mae = mean_absolute_error(val_y, preds_val)
+    return mae
 
 
 def preprocess(inputs):
@@ -244,7 +244,7 @@ if __name__ ==  "__main__":
 	# y_cc.value_counts()
 	# X_cc.shape
 	#
-	nm = NearMiss(version=1)
+	nm = NearMiss(version=3)
 	X_nm, y_nm = nm.fit_resample(X, y)
 	y_nm.value_counts()
 	X_nm.shape
@@ -254,7 +254,7 @@ if __name__ ==  "__main__":
 	train_X.shape
 	
 	rf = RandomForestClassifier(random_state=random_state)
-	rf.fit(train_X, train_y)    # X, y)  # X_rus, y_rus)  # X_nm, y_nm)  #
+	rf.fit(X_nm, y_nm)  # train_X, train_y)    # X, y)  # X_rus, y_rus)  #
 	
 	dump(rf, "./source/ " + model_name, compress=3)
 	
@@ -280,7 +280,7 @@ if __name__ ==  "__main__":
 	plt.yticks(tick_marks2, class_names, rotation=0)
 	plt.xlabel('Predicted label')
 	plt.ylabel('True label')
-	plt.title('Confusion Matrix for Random Forest Model - NearMiss-1')
+	plt.title('Confusion Matrix for Random Forest Model - NearMiss-3')
 	plt.show()
 	
 	print(classification_report(val_y, y_predictions))

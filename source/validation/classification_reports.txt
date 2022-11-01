@@ -25,3 +25,12 @@ Accuracy Score: 0.8260092153221924
     accuracy                           0.83     14541
    macro avg       0.83      0.83      0.83     14541
 weighted avg       0.83      0.83      0.83     14541
+
+NearMiss-3
+Accuracy Score: 0.7489168557870848
+              precision    recall  f1-score   support
+         0.0       0.75      0.76      0.75      7329
+         1.0       0.75      0.74      0.74      7212
+    accuracy                           0.75     14541
+   macro avg       0.75      0.75      0.75     14541
+weighted avg       0.75      0.75      0.75     14541
