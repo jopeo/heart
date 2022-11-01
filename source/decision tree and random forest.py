@@ -227,10 +227,20 @@ if __name__ ==  "__main__":
 	X.isnull().values.any()
 	X.to_hdf("./source/full_X_imputed_before_RFE.h5", "X", complevel=2)
 
-	
 	selector = RFECV(RandomForestClassifier(), min_features_to_select=30, cv=3, verbose=2, n_jobs=-1)
 	selector.fit(X, y)
 	
+	dump(selector, "./source/RFECV_selector_heart.joblib", compress=3)
+
+	
+	features_to_keep = selector.get_feature_names_out(X.columns.values)
+	
+	RFE_features = ['IDATE', '_PSU', 'SEXVAR', 'GENHLTH', 'CVDINFR4', 'CVDCRHD4',
+       'CVDSTRK3', 'CHCCOPD2', 'CHCKDNY2', 'DIABETE4', 'DIABAGE3',
+       'RMVTETH4', 'EMPLOY1', 'DIFFWALK', '_STSTR', '_WT2RAKE',
+       '_LLCPWT2', '_LLCPWT', '_RFHLTH', '_HCVU651', '_MICHD', '_SEX',
+       '_AGEG5YR', '_AGE65YR', '_AGE80', '_AGE_G', 'HTIN4', 'HTM4',
+       'WTKG3', '_BMI5']
 	
 	# data.to_hdf(df_name, "X", complevel=3)  # to save cleaned data
 	
@@ -274,7 +284,7 @@ if __name__ ==  "__main__":
 	# X_cc, y_cc = cc.fit_resample(X, y)
 	# y_cc.value_counts()
 	# X_cc.shape
-	#
+	
 	nm = NearMiss(version=3)
 	X_nm, y_nm = nm.fit_resample(X, y)
 	y_nm.value_counts()
