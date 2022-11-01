@@ -16,7 +16,7 @@ from imblearn.under_sampling import ClusterCentroids, RandomUnderSampler, NearMi
 
 raw_file = "raw.h5"
 cleaned_file = "heart_cleaned.h5"
-model_name = "heart_model_RUS.joblib"
+model_name = "heart_model_NM-1.joblib"
 outcome = "_MICHD"  # have ever reported having coronary heart disease (CHD) or myocardial infarction (MI)
 random_state = 1
 
@@ -244,17 +244,17 @@ if __name__ ==  "__main__":
 	# y_cc.value_counts()
 	# X_cc.shape
 	#
-	# nm = NearMiss(version=3)
-	# X_nm, y_nm = nm.fit_resample(X, y)
-	# y_nm.value_counts()
-	# X_nm.shape
+	nm = NearMiss(version=1)
+	X_nm, y_nm = nm.fit_resample(X, y)
+	y_nm.value_counts()
+	X_nm.shape
 	
-	train_X, val_X, train_y, val_y = train_test_split(X_rus, y_rus,  # X, y,
+	train_X, val_X, train_y, val_y = train_test_split(X_nm, y_nm,  # X_rus, y_rus,  # X, y,
 	                                                  random_state=1)  #, stratify=y)
 	train_X.shape
 	
 	rf = RandomForestClassifier(random_state=random_state)
-	rf.fit(X_rus, y_rus)  # X_nm, y_nm)  # train_X, train_y)    # X, y)  #
+	rf.fit(train_X, train_y)    # X, y)  # X_rus, y_rus)  # X_nm, y_nm)  #
 	
 	dump(rf, "./source/ " + model_name, compress=3)
 	
@@ -272,7 +272,7 @@ if __name__ ==  "__main__":
 	sns.set(font_scale=1.4)
 	sns.heatmap(matrix, annot=True, annot_kws={
 			'size': 10},
-	            cmap=plt.cm.YlGnBu, linewidths=0.2)  # plt.cm.Greens
+	            cmap=plt.cm.Blues, linewidths=0.2)  # plt.cm.Greens plt.cm.YlGnBu
 	class_names = ["No stroke", "Stroke"]
 	tick_marks = np.arange(len(class_names))
 	tick_marks2 = tick_marks + 0.5
@@ -280,7 +280,7 @@ if __name__ ==  "__main__":
 	plt.yticks(tick_marks2, class_names, rotation=0)
 	plt.xlabel('Predicted label')
 	plt.ylabel('True label')
-	plt.title('Confusion Matrix for Random Forest Model - Random Under Sampling')
+	plt.title('Confusion Matrix for Random Forest Model - NearMiss-1')
 	plt.show()
 	
 	print(classification_report(val_y, y_predictions))
