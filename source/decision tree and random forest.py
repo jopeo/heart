@@ -231,9 +231,10 @@ if __name__ ==  "__main__":
 	selector.fit(X, y)
 	
 	dump(selector, "./source/RFECV_selector_heart.joblib", compress=3)
-
+	selector_2 = load("./source/RFECV_selector_heart.joblib")
 	
 	features_to_keep = selector.get_feature_names_out(X.columns.values)
+	selector_2.get_feature_names_out(X.columns.values)
 	
 	RFE_features = ['IDATE', '_PSU', 'SEXVAR', 'GENHLTH', 'CVDINFR4', 'CVDCRHD4',
        'CVDSTRK3', 'CHCCOPD2', 'CHCKDNY2', 'DIABETE4', 'DIABAGE3',
@@ -242,8 +243,8 @@ if __name__ ==  "__main__":
        '_AGEG5YR', '_AGE65YR', '_AGE80', '_AGE_G', 'HTIN4', 'HTM4',
        'WTKG3', '_BMI5']
 	
-	# data.to_hdf(df_name, "X", complevel=3)  # to save cleaned data
 	
+	# data.to_hdf(df_name, "X", complevel=3)  # to save cleaned data
 	data = clean_data(data)
 	
 	data.shape
