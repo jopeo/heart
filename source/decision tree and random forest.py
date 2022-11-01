@@ -229,7 +229,7 @@ if __name__ ==  "__main__":
 	X.head()
 	X.isnull().values.any()
 	
-	# X.to_hdf(df_name, "X")  # to save cleaned data
+	X.to_hdf("./source/" + cleaned_file, "X", complevel=2)  # to save cleaned data
 	# X = pd.read_hdf("./source/" + df_name)  # to read cleaned data
 	X.shape
 	
