@@ -5,12 +5,9 @@ layout: template
 filename: index
 ---
 
-# Hi!
+# [Click Here for the Live Prototype](www.heartdiseasepredictor.com){:target="_blank"}
 
-This website is in progress. Machine learning model coming soon!
-
-For now, please visit the GitHub repository [https://github.com/jopeo/heart](https://github.com/jopeo/heart/tree/master/source){:target="_blank"}
-for the source code.
+For the source code, please visit the GitHub repository [https://github.com/jopeo/heart](https://github.com/jopeo/heart/tree/master/source){:target="_blank"}.
 
 The data for training this model was taken from the CDC's 2020 Behavioral Risk Factor 
 Surveillance System (BRFSS) Telephone Survey: <https://www.cdc.gov/brfss/annual_data/annual_2020.html>
