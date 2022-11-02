@@ -75,6 +75,70 @@ features_num = ['_AGE80',       #  imputed age value collapsed above 80
                 ]
 
 
+RFE_features = ['_STATE',
+                'IDATE',
+                'IDAY',
+                'SEQNO',
+                '_PSU',
+                'GENHLTH',
+                'PHYSHLTH',
+                'SLEPTIM1',
+                'CVDINFR4',
+                'CVDCRHD4',
+                'CVDSTRK3',
+                'CHCCOPD2',
+                'CHCKDNY2',
+                'DIABETE4',
+                'DIABAGE3',
+                'RMVTETH4',
+                'EMPLOY1',
+                'INCOME2',
+                'WEIGHT2',
+                'HEIGHT3',
+                'DIFFWALK',
+                'FLSHTMY3',
+                'PNEUVAC4',
+                '_STSTR',
+                '_STRWT',
+                '_WT2RAKE',
+                '_DUALCOR',
+                '_LLCPWT2',
+                '_LLCPWT',
+                '_RFHLTH',
+                '_PHYS14D',
+                '_DRDXAR2',
+                '_SEX',
+                '_AGEG5YR',
+                '_AGE65YR',
+                '_AGE80',
+                '_AGE_G',
+                'HTIN4',
+                'HTM4',
+                'WTKG3',
+                '_BMI5']
+
+
+add_features = [
+		'DIABETE4',  # (Ever told) (you had) diabetes?
+		'CHCKDNY2',  # Not including kidney stones, bladder infection or incontinence, were you ever told you had kidney disease?  1 yes 2 no
+		'FLUSHOT7',  # During the past 12 months, have you had either flu vaccine that was sprayed in your nose or flu shot injected into your arm?
+		'_CRCREC1',  # fully met the USPSTF recommendations for rectal cancer screening 1 yes, 2 yes but not within time, 3 never
+		'_AIDTST4',  # ever been tested for HIV
+		'CHCSCNCR',  # (Ever told) (you had) skin cancer? 1 yes 2 no
+		'CHCOCNCR',  # (Ever told) (you had) any other types of cancer? 1 yes 2 no
+		'CHCCOPD2',  # (Ever told) (you had) chronic obstructive pulmonary disease, C.O.P.D., emphysema or chronic bronchitis? 1 yes 2 no
+		'_RACE',  # 1 White only, nonHispanic, 2 Black only, nonHispanic, 3 American Indian or Alaskan Native only,Non-Hispanic 4 Asian only, nonHispanic  5 Native Hawaiian or other Pacific Islander only, Non-Hispanic 6 Other race only, nonHispanic 7 Multiracial, nonHispanic 8 Hispanic Respondents who reported they are of Hispanic origin. ( _HISPANC=1) 9 Don’t know/ Not sure/ Refused
+		'_EDUCAG',  # level of education completed 1 no grad high school, 2 high school, 3 some college, 4 graduated college, 9 don't know
+		'SEXVAR',  # Sex of Respondent 1 MALE, 2 FEMALE
+		'_TOTINDA',  # Exercise 1 Had physical activity or exercise 2 No physical activity or exercise in last 30 days 9 Don’t know/ Refused/ Missing
+		'_ASTHMS1',  # asthma? 1 current 2 former 3 never
+		'_DRDXAR2',  # ever arthritis? 1 Diagnosed with arthritis 2 Not diagnosed with arthritis
+		'_DENVST3',  # dentist in past year? 1 yes 2 no 9 don't know
+		'_SMOKER3',  # four-level smoker status: everyday smoker, someday smoker, former smoker, non-smoker
+		'PERSDOC2',  # personal doctor yes = 1, more = 2, no = 3 Do you have one person you think of as your personal doctor or health care provider? (If ´No´ ask ´Is there more than one or is there no person who you think of as your personal doctor or health care provider?´.)
+]
+
+
 def clean_data(data):
 	data = data.dropna(subset=[outcome], axis=0)
 	data = data[data.DISPCODE != 1200]  # == 1200    final disposition (1100 completed or not 1200)
