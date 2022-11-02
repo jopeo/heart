@@ -8,11 +8,12 @@ from sklearn.feature_selection import RFE
 from sklearn.impute import SimpleImputer
 from joblib import dump, load
 
-raw_file = "./source/" + "raw.h5"
-RFE_selector_name = "./source/" + "RFE_selector_stroke.joblib"
-step = 0.1
-n_features = 0.1
 outcome = "_MICHD"  # Reported having MI or CHD
+raw_file = "raw.h5"
+RFE_selector_name = "RFE_selector_heart_2.joblib"
+features_txt = "features_heart_2.txt"
+step = 0.05
+n_features = 0.15
 random_state = 1
 
 if __name__ == "__main__":
@@ -51,7 +52,7 @@ if __name__ == "__main__":
 	features_to_keep = selector.get_feature_names_out(X.columns.values)
 	print(features_to_keep)
 	
-	with open('features_RFE.txt', 'w+') as f:
-		f.write(str(features_to_keep))
+	with open(features_txt, 'w+') as f:
+		f.write(features_to_keep)
 	
 	pass
