@@ -236,7 +236,7 @@ if __name__ ==  "__main__":
 	features_to_keep = selector.get_feature_names_out(X.columns.values)
 	selector_2.get_feature_names_out(X.columns.values)
 	
-	RFE_features = ['IDATE', '_PSU', 'SEXVAR', 'GENHLTH', 'CVDINFR4', 'CVDCRHD4',
+	RFECV_features = ['IDATE', '_PSU', 'SEXVAR', 'GENHLTH', 'CVDINFR4', 'CVDCRHD4',
        'CVDSTRK3', 'CHCCOPD2', 'CHCKDNY2', 'DIABETE4', 'DIABAGE3',
        'RMVTETH4', 'EMPLOY1', 'DIFFWALK', '_STSTR', '_WT2RAKE',
        '_LLCPWT2', '_LLCPWT', '_RFHLTH', '_HCVU651', '_MICHD', '_SEX',
