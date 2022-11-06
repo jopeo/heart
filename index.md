@@ -10,7 +10,7 @@ filename: index
 >### For the source code, please visit my GitHub repositories:
 >> Model training source code: [https://github.com/jopeo/heart](https://github.com/jopeo/heart/tree/master/source){:target="_blank"}.
 > 
->> Live prototype source code: [https://github.com/jopeo/heart-disease-prediction](https://github.com/jopeo/heart-disease-prediction){:target="_blank"}.
+>> Deployed prototype source code: [https://github.com/jopeo/heart-disease-prediction](https://github.com/jopeo/heart-disease-prediction){:target="_blank"}.
 >
 > <br>
 
