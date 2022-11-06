@@ -12,6 +12,7 @@ filename: index
 > 
 >> Live prototype source code: [https://github.com/jopeo/heart-disease-prediction](https://github.com/jopeo/heart-disease-prediction){:target="_blank"}.
 >
+> <br>
 
 The data for training this model was taken from the CDC's 2020 Behavioral Risk Factor 
 Surveillance System (BRFSS) Telephone Survey: <https://www.cdc.gov/brfss/annual_data/annual_2020.html>
