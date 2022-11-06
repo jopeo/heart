@@ -1,6 +1,6 @@
 ---
 title: Heart Disease Prediction
-description: A deep neural network for predicting heart disease
+description: A machine learning algorithm for predicting heart disease
 layout: template
 filename: index
 ---
