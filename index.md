@@ -5,7 +5,7 @@ layout: template
 filename: index
 ---
 
-# [Click Here for the Live Prototype](http://www.heartdiseasepredictor.com){:target="_blank"}
+# [Click Here for the Live Prototype](http://www.heartdiseasepredictor.com)
 
 >### For the source code, please visit my GitHub repositories:
 >> Model training source code: [https://github.com/jopeo/heart](https://github.com/jopeo/heart/tree/master/source){:target="_blank"}.
